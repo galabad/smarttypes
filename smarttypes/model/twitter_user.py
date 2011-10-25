@@ -3,9 +3,9 @@
 from smarttypes.model.postgres_base_model import PostgresBaseModel
 from smarttypes.utils.validation_utils import mk_valid_ascii_str
 
+from types import NoneType
 from datetime import datetime, timedelta
 import numpy, random, heapq
-from sets import Set
 import collections
 
 
@@ -33,12 +33,10 @@ class TwitterUser(PostgresBaseModel):
         'statuses_count',
         'favourites_count',
         'caused_an_error',
-        
-        #'scores_groups',
     ]
-    table_defaults = {
-        'following_ids':[],
-    }
+    #table_defaults = {
+        #'following_ids':[],
+    #}
     
     MAX_FOLLOWING_COUNT = 1000
     TRY_AGAIN_AFTER_FAILURE_THRESHOLD = timedelta(days=31)
@@ -49,16 +47,13 @@ class TwitterUser(PostgresBaseModel):
 
     @property
     def following_following_ids(self):
-        return_ids = Set()
+        return_ids = set()
         for following in self.following:
             return_ids.add(following.twitter_id)
             for following_following_id in following.following_ids:
                 return_ids.add(following_following_id)
         return list(return_ids)  
     
-    ##############################################
-    ##related to get_someone_in_my_network_to_load
-    ##############################################    
     @property
     def following_and_expired(self):
         return_list = []
@@ -68,16 +63,10 @@ class TwitterUser(PostgresBaseModel):
         return return_list
     
     @property
-    def no_recent_errors(self):
-        if self.caused_an_error:
-            return (datetime.now() - self.caused_an_error) >= self.TRY_AGAIN_AFTER_FAILURE_THRESHOLD
-        return True        
-    
-    @property
     def should_we_query_this_user(self):
-        return not(self.following_ids) and \
+        return type(self.following_ids) == NoneType and \
                self.following_count <= self.MAX_FOLLOWING_COUNT and \
-               self.no_recent_errors and \
+               not self.caused_an_error and \
                not self.protected
     
     def get_random_followie_id(self, not_in_this_list=[]):
@@ -92,7 +81,6 @@ class TwitterUser(PostgresBaseModel):
         """
         keep in mind that 'loading' a user means storing all their connections
         we try to load self, the people self follows, and the people self follows follows
-        so if everyone follows 100 people -- that's 10,001 people 
         """
         
         #the people self follows
@@ -103,7 +91,7 @@ class TwitterUser(PostgresBaseModel):
         #the people self follows follows
         else:
             tried_to_load_these_ids = []
-            for i in range(len(self.following_ids)): #give up at some point
+            for i in range(len(self.following_ids)): #give up at some point (this could be anything)
                 random_following_id = self.get_random_followie_id(tried_to_load_these_ids)
                 print random_following_id
                 random_following = TwitterUser.get_by_id(random_following_id)
@@ -160,7 +148,7 @@ class TwitterUser(PostgresBaseModel):
     ##state changing methods
     ##############################################    
     def save_following_ids(self, following_ids):
-        self.following_ids = list(Set(following_ids))
+        self.following_ids = list(set(following_ids))
         self.save()    
         
     ##############################################

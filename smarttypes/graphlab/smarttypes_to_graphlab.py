@@ -13,7 +13,6 @@ site.addsitedir('/home/timmyt/.virtualenvs/smarttypes/lib/python2.6/site-package
 sys.path.insert(0, '/home/timmyt/projects/smarttypes')
 
 from numpy import array, vstack, dtype, amax, average  
-from sets import Set
 
 import smarttypes
 from smarttypes.utils.mongo_handle import MongoHandle
@@ -31,7 +30,7 @@ def mk_matrix(following_dict, twitter_id_map, index_map, debug=False):
     #for testing small runs
     if debug: test_file = open('initial', 'w')
     for i in sorted(index_map.keys()):
-        following_index_ids = Set([twitter_id_map[x] for x in following_dict[index_map[i]]])
+        following_index_ids = set([twitter_id_map[x] for x in following_dict[index_map[i]]])
         for j in sorted(index_map.keys()):
             rating = 1 if j in following_index_ids else 0            
             #if rating:
@@ -108,7 +107,7 @@ if __name__ == "__main__":
     print "Whittle followies"
     for twitter_id, followie_ids in following_dict.items():
         #check for dups
-        if len(followie_ids) != len(Set(followie_ids)):
+        if len(followie_ids) != len(set(followie_ids)):
             we_have_dup_followie_ids.append(twitter_id)
             
         whittled_following_dict[twitter_id] = []
