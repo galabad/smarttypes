@@ -3,7 +3,7 @@ run from cron
 """
 import sys, site
 from datetime import datetime, timedelta
-site.addsitedir('/home/timmyt/.virtualenvs/smarttypes/lib/python%s/site-packages' % sys.version[:3])
+site.addsitedir('/home/timmyt/.virtualenvs/smarttypes/lib/python2.6/site-packages')
 sys.path.insert(0, '/home/timmyt/projects/smarttypes')
 
 import smarttypes

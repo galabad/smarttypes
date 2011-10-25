@@ -6,4 +6,4 @@ rsync -ra --stats --delete \
 
 cp /home/timmyt/projects/smarttypes/README /home/timmyt/projects/smarttypes_github/README
 
-cp /home/timmyt/projects/smarttypes/smarttypes/config.py.blank /home/timmyt/projects/smarttypes_github/smarttypes/config.py
+

@@ -4,17 +4,16 @@ from smarttypes.model.postgres_base_model import PostgresBaseModel
 from smarttypes.utils.validation_utils import mk_valid_ascii_str
 
 from datetime import datetime, timedelta
-from types import NoneType
 import numpy, random, heapq
 from sets import Set
 import collections
 
-#from smarttypes.utils.log_handle import LogHandle
-#log_handle = LogHandle('twitter_user.log')
+
 
 class TwitterUser(PostgresBaseModel):
         
-    table_name = 'twitter_user'
+    table_name_prefix = 'twitter_user'
+    table_time_context = '%Y_%U'
     table_key = 'twitter_id'
     table_columns = [
         'twitter_id',
@@ -28,7 +27,6 @@ class TwitterUser(PostgresBaseModel):
         'description',
         'url',
         
-        'last_loaded_following_ids',
         'following_ids',
         'following_count',
         'followers_count',
@@ -39,11 +37,9 @@ class TwitterUser(PostgresBaseModel):
         #'scores_groups',
     ]
     table_defaults = {
-        'last_loaded_following_ids':datetime(2000,1,1),
         'following_ids':[],
     }
     
-    RELOAD_FOLLOWING_IDS_THRESHOLD = timedelta(days=31)
     MAX_FOLLOWING_COUNT = 1000
     TRY_AGAIN_AFTER_FAILURE_THRESHOLD = timedelta(days=31)
     
@@ -72,10 +68,6 @@ class TwitterUser(PostgresBaseModel):
         return return_list
     
     @property
-    def is_last_loaded_following_ids_expired(self):
-        return self.last_loaded_following_ids < (datetime.now() - self.RELOAD_FOLLOWING_IDS_THRESHOLD)
-    
-    @property
     def no_recent_errors(self):
         if self.caused_an_error:
             return (datetime.now() - self.caused_an_error) >= self.TRY_AGAIN_AFTER_FAILURE_THRESHOLD
@@ -83,7 +75,7 @@ class TwitterUser(PostgresBaseModel):
     
     @property
     def should_we_query_this_user(self):
-        return self.is_last_loaded_following_ids_expired and \
+        return not(self.following_ids) and \
                self.following_count <= self.MAX_FOLLOWING_COUNT and \
                self.no_recent_errors and \
                not self.protected
@@ -169,7 +161,6 @@ class TwitterUser(PostgresBaseModel):
     ##############################################    
     def save_following_ids(self, following_ids):
         self.following_ids = list(Set(following_ids))
-        self.last_loaded_following_ids = datetime.now()
         self.save()    
         
     ##############################################

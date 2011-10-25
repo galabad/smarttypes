@@ -1,10 +1,10 @@
-
+from datetime import datetime
 
 class PostgresBaseModel(object):
     
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-
+        
     @property
     def insert_sql_str(self):
         qry = """
@@ -13,7 +13,7 @@ class PostgresBaseModel(object):
         returning %(key_name)s;
         """
         place_holder = ','.join(['%%(%s)s' % x for x in self.table_columns])
-        params = {'table_name':self.table_name,
+        params = {'table_name':self.get_table_name(),
                   'table_columns':','.join(self.table_columns),
                   'place_holder':place_holder,
                   'key_name':self.table_key,}
@@ -28,7 +28,7 @@ class PostgresBaseModel(object):
         returning %(key_name)s;
         """
         place_holder = ','.join(["%s = %%(%s)s" % (x,x) for x in self.table_columns])
-        params = {'table_name':self.table_name,
+        params = {'table_name':self.get_table_name(),
                   'place_holder':place_holder,
                   'key_name':self.table_key,
                   'key_value':getattr(self, self.table_key, None)}
@@ -50,13 +50,22 @@ class PostgresBaseModel(object):
         return self
     
     @classmethod
+    def get_table_name(cls):        
+        if not cls.table_time_context:
+            return cls.table_name_prefix
+        else:
+            if not getattr(cls, 'time_context', None):
+                cls.time_context = datetime.now()
+            return '%s_%s' % (cls.table_name_prefix,cls.time_context.strftime(cls.table_time_context))    
+    
+    @classmethod
     def get_by_id(cls, key_value):
         qry = """
         select * 
         from %(table_name)s
         where %(key_name)s = %(key_value)s;
         """
-        params = {'table_name':cls.table_name,
+        params = {'table_name':cls.get_table_name(),
                          'key_name':cls.table_key,
                          'key_value':'%(key_value)s'}
         results = cls.postgres_handle.execute_query(qry % params, {'key_value':key_value})
@@ -73,7 +82,7 @@ class PostgresBaseModel(object):
         from %(table_name)s
         where %(key_name)s in %(key_values)s;
         """
-        params = {'table_name':cls.table_name,
+        params = {'table_name':cls.get_table_name(),
                          'key_name':cls.table_key,
                          'key_values':'%(key_values)s'}
         results = cls.postgres_handle.execute_query(qry % params, {'key_values':tuple(key_values)})
@@ -86,7 +95,7 @@ class PostgresBaseModel(object):
         from %(table_name)s
         where %(name)s = %(value)s;
         """
-        params = {'table_name':cls.table_name,
+        params = {'table_name':cls.get_table_name(),
                          'name':name,
                          'value':'%(value)s'}
         results = cls.postgres_handle.execute_query(qry % params, {'value':value})

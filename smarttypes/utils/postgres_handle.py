@@ -16,6 +16,7 @@ class PostgresHandle(object):
         
         params = params if params else {}
         cursor = self.connection.cursor()
+        if print_qry: print query_string
         cursor.execute(query_string, params)        
         column_names = cursor.description 
         cursor_results = []
