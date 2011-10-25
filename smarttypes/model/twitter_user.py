@@ -34,12 +34,19 @@ class TwitterUser(PostgresBaseModel):
         'favourites_count',
         'caused_an_error',
     ]
-    #table_defaults = {
+    table_defaults = {
         #'following_ids':[],
-    #}
+    }
     
     MAX_FOLLOWING_COUNT = 1000
     TRY_AGAIN_AFTER_FAILURE_THRESHOLD = timedelta(days=31)
+
+    @property
+    def following_ids_default(self):
+        if not self.following_ids:
+            return []
+        else:
+            return self.following_ids
     
     @property
     def following(self):
@@ -50,7 +57,7 @@ class TwitterUser(PostgresBaseModel):
         return_ids = set()
         for following in self.following:
             return_ids.add(following.twitter_id)
-            for following_following_id in following.following_ids:
+            for following_following_id in following.following_ids_default:
                 return_ids.add(following_following_id)
         return list(return_ids)  
     
@@ -70,8 +77,8 @@ class TwitterUser(PostgresBaseModel):
                not self.protected
     
     def get_random_followie_id(self, not_in_this_list=[]):
-        random_index = random.randrange(0, len(self.following_ids)) 
-        random_id = self.following_ids[random_index]
+        random_index = random.randrange(0, len(self.following_ids_default)) 
+        random_id = self.following_ids_default[random_index]
         if random_id in not_in_this_list:
             return self.get_random_followie_id(not_in_this_list)
         else:
@@ -91,7 +98,7 @@ class TwitterUser(PostgresBaseModel):
         #the people self follows follows
         else:
             tried_to_load_these_ids = []
-            for i in range(len(self.following_ids)): #give up at some point (this could be anything)
+            for i in range(len(self.following_ids_default)): #give up at some point (this could be anything)
                 random_following_id = self.get_random_followie_id(tried_to_load_these_ids)
                 print random_following_id
                 random_following = TwitterUser.get_by_id(random_following_id)
@@ -139,7 +146,7 @@ class TwitterUser(PostgresBaseModel):
     #def who_to_follow(self, num_users):
         #return_list = []
         #for user_id in self.group_inferred_following(num_users):
-            #if user_id not in self.following_ids:
+            #if user_id not in self.following_ids_default:
                 #return_list.append(TwitterUser.get_by_id(user_id))
         #return return_list
     

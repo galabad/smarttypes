@@ -100,7 +100,7 @@ if __name__ == "__main__":
     while load_this_user:
         load_user_and_the_people_they_follow(api_handle, load_this_user.screen_name)
         load_this_user = twitter_user.get_someone_in_my_network_to_load()
-        load_this_user = None
+        #load_this_user = None
         
     print "Finshed loading all related users for %s!" % screen_name
     

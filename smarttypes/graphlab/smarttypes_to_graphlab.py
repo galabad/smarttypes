@@ -88,14 +88,14 @@ if __name__ == "__main__":
     twitter_user = TwitterUser.by_screen_name(screen_name)
     
     following_dict = {}
-    following_dict[twitter_user.twitter_id] = twitter_user.following_ids
+    following_dict[twitter_user.twitter_id] = twitter_user.following_ids_default
     print "Collect all followers"
     for following_user in twitter_user.following:
         if following_user.twitter_id not in following_dict:
-            following_dict[following_user.twitter_id] = following_user.following_ids
+            following_dict[following_user.twitter_id] = following_user.following_ids_default
         for following_following_user in following_user.following:
-            if following_following_user.following_ids and following_following_user.twitter_id not in following_dict:
-                following_dict[following_following_user.twitter_id] = following_following_user.following_ids
+            if following_following_user.following_ids_default and following_following_user.twitter_id not in following_dict:
+                following_dict[following_following_user.twitter_id] = following_following_user.following_ids_default
         record_count = len(following_dict.keys())
         if record_count % 2000 == 0:
             print "%s records processed." % record_count
