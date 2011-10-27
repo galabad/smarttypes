@@ -50,9 +50,9 @@ $ cp config.py.blank config.py
 #application @ https://dev.twitter.com/apps/new
 
 #ACCESS_KEY and ACCESS_SECRET are the tokens you get when someone 
-#'Sign's in w/ twitter'
+#"Sign's in w/ twitter"
 
-#one you have your CONSUMER_KEY and CONSUMER_SECRET you can use 
+#once you have your CONSUMER_KEY and CONSUMER_SECRET you can use 
 #scripts/setup_twitter_oauth.py to get an ACCESS_KEY and ACCESS_SECRET
 #think of it as signing up for your own app
 
