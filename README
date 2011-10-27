@@ -44,7 +44,7 @@ tweepy==1.7.1
 $ cd smarttypes/smarttypes/
 $ cp config.py.blank config.py
 
-#now fill in the config.py, don't worry config.py is in .gitignore
+#now fill in config.py, don't worry about sensitive info it's in .gitignore
 
 #to get CONSUMER_KEY and CONSUMER_SECRET you need to register your 
 #application @ https://dev.twitter.com/apps/new
