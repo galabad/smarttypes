@@ -31,8 +31,9 @@ site_name = 'SmartTypes'
 site_mantra = 'a tool for social discovery'
 default_title = '%s - %s' % (site_name, site_mantra)
 site_description = """
-Sign in w/ your twitter account and receive a daily email highlighting the people and content that interest you.
-Give us a week, and an active twitter account, and you'll be amazed!!
+SmartTypes is a social network analysis (SNA) service built to highlight influence and trends within niche communities.
+Unlike proprietary SNA services, Smarttypes is open source and accessible. 
+Give us a try, sign in with your twitter account, and receive a weekly email highlighting communities, people, and content that interest you. 
 """
 site_description = site_description.strip()
 

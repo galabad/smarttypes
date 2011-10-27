@@ -9,7 +9,7 @@ We provide automated tools to pull and store social connections and content.  Ou
 
 Data is stored in postgres, and partitioned by year_week.  The db schema was built to scale.
 
-Enough of the boring stuff, the purpose of smarttypes is to explore, highlight, and improve social network analysis algorithms.
+Enough of the boring stuff, our purpose is to explore, highlight, and improve social analysis algos and visualizations.
 
 Please see http://www.smarttypes.org/blog/modeling_complexity_w_python for info on our first algorithm.
 
