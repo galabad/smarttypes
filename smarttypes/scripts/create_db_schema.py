@@ -1,9 +1,4 @@
 
-import sys, site
-from datetime import datetime, timedelta
-site.addsitedir('/home/timmyt/.virtualenvs/smarttypes/lib/python2.6/site-packages')
-sys.path.insert(0, '/home/timmyt/projects/smarttypes')
-
 import smarttypes
 from smarttypes.config import *
 from smarttypes.utils import time_utils

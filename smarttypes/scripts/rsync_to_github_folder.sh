@@ -5,5 +5,4 @@ rsync -ra --stats --delete \
 /home/timmyt/projects/smarttypes_github/smarttypes/
 
 cp /home/timmyt/projects/smarttypes/README /home/timmyt/projects/smarttypes_github/README
-
-
+cp /home/timmyt/projects/smarttypes/.gitignore.github /home/timmyt/projects/smarttypes_github/.gitignore

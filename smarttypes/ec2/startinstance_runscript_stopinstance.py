@@ -1,9 +1,5 @@
 #ssh -i ~/.ssh/ec2key.pem ubuntu@ec2-50-16-62-250.compute-1.amazonaws.com
 
-import sys, site
-site.addsitedir('/home/timmyt/.virtualenvs/smarttypes/lib/python2.6/site-packages')
-sys.path.insert(0, '/home/timmyt/projects/smarttypes')
-
 from smarttypes.config import *
 
 #ubuntu amis: http://alestic.com/

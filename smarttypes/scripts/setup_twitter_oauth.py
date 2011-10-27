@@ -1,8 +1,4 @@
 
-import sys, site
-site.addsitedir('/home/timmyt/.virtualenvs/smarttypes/lib/python2.6/site-packages')
-sys.path.insert(0, '/home/timmyt/projects/smarttypes')
-
 import tweepy
 from smarttypes.config import *
 

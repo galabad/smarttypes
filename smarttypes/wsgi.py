@@ -1,15 +1,11 @@
 
-import sys, site
-site.addsitedir('/home/timmyt/.virtualenvs/smarttypes/lib/python2.6/site-packages')
-sys.path.insert(0, '/home/timmyt/projects/smarttypes')
-
+import smarttypes
 import re, traceback
 from webob import Request
-import smarttypes
 
-from smarttypes.utils import web_monitor
-web_monitor.start(interval=1.0)
-web_monitor.track('/home/timmyt/projects/smarttypes/smarttypes/templates')
+#from smarttypes.utils import web_monitor
+#web_monitor.start(interval=1.0)
+#web_monitor.track('/home/timmyt/projects/smarttypes/smarttypes/templates')
 
 urls = [
     (r'^$', smarttypes.controllers.home),

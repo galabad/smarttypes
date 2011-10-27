@@ -3,24 +3,64 @@
 About
 ***********************************************************
 
-This is the source code for the www.smarttypes.org web application.
+Smarttypes is an open source (mostly python) library for social network analysis (initially twitter).
 
-If you want to install SmartTypes please contact us at hello@smarttypes.org.  
-We'll walk you through installing the dependencies and configuring for your environment.
+We provide automated tools to pull and store social connections and content.  Our scripts pull as much data as they can, while respecting service rate limits.
 
-If you simply want to use the SmartTypes service visit www.smarttypes.org
+Data is stored in postgres, and partitioned by year_week.  The db schema was built to scale.
 
-Here is a description of the SmartTypes service:
+Enough of the boring stuff, the purpose of smarttypes is to explore, highlight, and improve social network analysis algorithms.
 
-Connect SmartTypes with your Twitter account, and we'll 'naturally' cluster your social graph into related communities. We'll cluster the people you follow, the people they follow, and the people they follow (A massive social universe that revolves around you). We'll cluster this universe into related communities, highlight the leaders of these communities, and highlight the stuff these communities find interesting. 
+Please see http://www.smarttypes.org/blog/modeling_complexity_w_python for info on our first algorithm.
 
-A special thanks to the guys at http://www.graphlab.ml.cmu.edu/.  78% of our value comes from their motivation and brilliance. 
 
-SmartTypes also depends on:
- - numpy.scipy.org
- - github.com/tweepy/tweepy
- - code.google.com/p/modwsgi
- - www.apache.org
+***********************************************************
+Get going
+***********************************************************
+
+Following is a pseudo shell script to get going w/ smarttypes. It assumes you have virtualenv and virtualenvwrapper, and your virtualenv directory is ~/.virtualenvs. It also assumes you have a twitter account, and you are following people:
+
+#create a smarttypes virtualenv
+$ mkvirtualenv --no-site-packages smarttypes
+
+#get the code from github
+$ cd ~/projects
+$ git clone git@github.com:smarttypes/SmartTypes.git smarttypes
+
+#add smarttypes to your python path
+$ echo '/home/timmyt/projects/smarttypes' >> smarttypes.pth; mv smarttypes.pth ~/.virtualenvs/smarttypes/lib/python2.7/site-packages/.
+
+#install dependencies (may not need these exact versions) 
+Genshi==0.6
+gensim==0.8.1
+networkx==1.5
+numpy==1.6.1
+psycopg2==2.4.2
+python-dateutil==2.0
+scipy==0.9.0
+tweepy==1.7.1
+
+#add config params
+$ cd smarttypes/smarttypes/
+$ cp config.py.blank config.py
+
+#now fill in the config.py, don't worry config.py is in .gitignore
+
+#to get CONSUMER_KEY and CONSUMER_SECRET you need to register your 
+#application @ https://dev.twitter.com/apps/new
+
+#ACCESS_KEY and ACCESS_SECRET are the tokens you get when someone 
+#'Sign's in w/ twitter'
+
+#one you have your CONSUMER_KEY and CONSUMER_SECRET you can use 
+#scripts/setup_twitter_oauth.py to get an ACCESS_KEY and ACCESS_SECRET
+#think of it as signing up for your own app
+
+#now, assuming postgres is installed, create the data schema
+$ python scripts/create_db_schema.py
+
+#the moment of truth, get the people you follow, and the people they follow
+$ python scripts/get_twitter_friends.py
 
 
 ***********************************************************

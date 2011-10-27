@@ -1,16 +1,6 @@
-"""
-run from cron
-"""
-import sys, site
-from datetime import datetime, timedelta
-site.addsitedir('/home/timmyt/.virtualenvs/smarttypes/lib/python2.6/site-packages')
-sys.path.insert(0, '/home/timmyt/projects/smarttypes')
 
-import smarttypes
+import smarttypes, sys
 from smarttypes.config import *
-
-#from smarttypes.utils.log_handle import LogHandle
-#log_handle = LogHandle('get_twitter_friends.log')
 
 from smarttypes.utils.postgres_handle import PostgresHandle
 from smarttypes.model.postgres_base_model import PostgresBaseModel
@@ -100,7 +90,7 @@ if __name__ == "__main__":
     while load_this_user:
         load_user_and_the_people_they_follow(api_handle, load_this_user.screen_name)
         load_this_user = twitter_user.get_someone_in_my_network_to_load()
-        #load_this_user = None
+        load_this_user = None
         
     print "Finshed loading all related users for %s!" % screen_name
     
