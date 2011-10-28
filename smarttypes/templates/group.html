@@ -34,7 +34,7 @@
             <tr py:for="top_user_tup in twitter_group.top_users(num_users=25)">
                 <td>${'%.3f' % top_user_tup[0]}</td>
                 <td>
-                    <a href="/user?user_id=${top_user_tup[1].twitter_id}">
+                    <a href="/user?user_id=${top_user_tup[1].id}">
                         ${top_user_tup[1].screen_name}
                     </a>
                 </td>

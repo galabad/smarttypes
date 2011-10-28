@@ -3,25 +3,35 @@
 from smarttypes.model.postgres_base_model import PostgresBaseModel
 
 
-class TwitterTweets(PostgresBaseModel):
-    """"""
+class TwitterTweet(PostgresBaseModel):
+
+    table_name_prefix = 'twitter_tweet'
+    table_time_context = '%Y_%U'
+    table_key = 'id'
+    table_columns = [
+        'id',
+        'author_id',
+        'retweet_count',
+        'tweet_text',
+    ]    
+    table_defaults = {
+        #'following_ids':[],
+    }
     
     @classmethod
     def upsert_from_api_tweet(cls, api_tweet):
-        
-        import pprint
-        print pprint.pprint(api_user.__dict__)
             
-        #model_tweet = cls.get_by_id(api_tweet.id)
-        #if model_tweet:
-            #model_tweet.screen_name = mk_valid_ascii_str(api_tweet.screen_name)
-        #else:
-            #properties = {
-                #'twitter_id':api_tweet.id,
-            #}
-            #model_tweet = cls(**properties)
-        #model_tweet.save()
-        #return model_tweet
+        model_tweet = cls.get_by_id(api_tweet.id_str)
+        if not model_tweet:
+            properties = {
+                'id':api_tweet.id_str,
+                'author_id':api_tweet.author.id_str,
+                'retweet_count':api_tweet.retweet_count,
+                'tweet_text':api_tweet.text,
+            }
+            model_tweet = cls(**properties)
+            model_tweet.save()
+        return model_tweet
 
         
 

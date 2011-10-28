@@ -14,9 +14,9 @@ class TwitterUser(PostgresBaseModel):
         
     table_name_prefix = 'twitter_user'
     table_time_context = '%Y_%U'
-    table_key = 'twitter_id'
+    table_key = 'id'
     table_columns = [
-        'twitter_id',
+        'id',
         'twitter_account_created',
         'screen_name',
         'protected',
@@ -56,7 +56,7 @@ class TwitterUser(PostgresBaseModel):
     def following_following_ids(self):
         return_ids = set()
         for following in self.following:
-            return_ids.add(following.twitter_id)
+            return_ids.add(following.id)
             for following_following_id in following.following_ids_default:
                 return_ids.add(following_following_id)
         return list(return_ids)  
@@ -177,7 +177,7 @@ class TwitterUser(PostgresBaseModel):
         #import pprint
         #print pprint.pprint(api_user.__dict__)
             
-        model_user = cls.get_by_id(api_user.id)
+        model_user = cls.get_by_id(api_user.id_str)
         if model_user:
             model_user.screen_name = mk_valid_ascii_str(api_user.screen_name)
             model_user.protected = api_user.protected
@@ -195,7 +195,7 @@ class TwitterUser(PostgresBaseModel):
             
         else:
             properties = {
-                'twitter_id':api_user.id,
+                'id':api_user.id_str,
                 'twitter_account_created':api_user.created_at,
                 'screen_name':mk_valid_ascii_str(api_user.screen_name),                 
                 'protected':api_user.protected,

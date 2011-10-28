@@ -31,7 +31,7 @@ class PostgresBaseModel(object):
         params = {'table_name':self.get_table_name(),
                   'place_holder':place_holder,
                   'key_name':self.table_key,
-                  'key_value':getattr(self, self.table_key, None)}
+                  'key_value':'%('+self.table_key+')s'}
         return qry % params
     
     def save(self):     

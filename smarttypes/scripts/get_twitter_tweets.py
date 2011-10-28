@@ -1,5 +1,5 @@
 
-import smarttypes
+import smarttypes, sys
 from smarttypes.config import *
 
 from smarttypes.utils.postgres_handle import PostgresHandle
@@ -8,6 +8,7 @@ postgres_handle = PostgresHandle(smarttypes.connection_string)
 PostgresBaseModel.postgres_handle = postgres_handle
 
 from smarttypes.model.twitter_user import TwitterUser
+from smarttypes.model.twitter_tweet import TwitterTweet
 
 import tweepy
 from tweepy.streaming import StreamListener, Stream
@@ -18,21 +19,16 @@ class Listener(StreamListener):
     def __init__(self, monitor_these_user_ids, api=None):
         StreamListener.__init__(self)
         self.monitor_these_user_ids = monitor_these_user_ids
-        self.pickle_file = open('/tmp/tweet_status.pickle', 'w')
     
     def on_error(self, status_code):
         print "Error: %s" % status_code
         return False    
     
     def on_status(self, status):
-        if status.author.id in self.monitor_these_user_ids:
-            pickle.dump(status, self.pickle_file)
-            self.pickle_file.close()
-            print "done"
-        
-            return False
-        
-        #dont forget this
+        if status.author.id_str in self.monitor_these_user_ids:
+            TwitterTweet.upsert_from_api_tweet(status)
+            postgres_handle.connection.commit()
+            print "got one"
         return True
             
     
@@ -48,10 +44,10 @@ if __name__ == "__main__":
     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
     auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
 
-    monitor_these_user_ids = twitter_user.following_following_ids[:4000]
+    monitor_these_user_ids = twitter_user.following_following_ids[:4900]
     print "Num of users to monitor: %s" % len(monitor_these_user_ids)
     listener = Listener(monitor_these_user_ids)
-    stream = Stream(auth,listener)
+    stream = Stream(auth,listener,secure=True)
 
     stream.filter(follow=monitor_these_user_ids)
 

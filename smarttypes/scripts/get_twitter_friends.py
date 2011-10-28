@@ -66,7 +66,7 @@ def load_user_and_the_people_they_follow(api_handle, screen_name):
         if api_following.protected:
             continue 
         model_following = TwitterUser.upsert_from_api_user(api_following)
-        following_ids.append(model_following.twitter_id)
+        following_ids.append(model_following.id)
     model_user.save_following_ids(following_ids)
     
     postgres_handle.connection.commit()
