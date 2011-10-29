@@ -87,6 +87,25 @@ for year_week_st in time_utils.year_weeknum_strs(datetime.now(), 100):
     postgres_handle.execute_query(twitter_tweet % {'postfix':year_week_st}, return_results=False)
     postgres_handle.connection.commit()
 
+twitter_signup = """
+create table twitter_signup(
+    createddate timestamp not null default now(),
+    modifieddate timestamp not null default now(),
 
+    id serial unique not null,
+    request_key text unique not null,
+    request_secret text unique not null,
+    access_key text unique,
+    access_secret text unique,
+    twitter_id text unique,
+    twitter_username text,
+    email text
+);
+CREATE TRIGGER twitter_signup_modified BEFORE UPDATE
+ON twitter_signup FOR EACH ROW
+EXECUTE PROCEDURE ts_modifieddate();  
+"""
+postgres_handle.execute_query(twitter_signup, return_results=False)
+postgres_handle.connection.commit()
 
 

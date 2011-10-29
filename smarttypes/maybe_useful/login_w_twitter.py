@@ -19,20 +19,13 @@ class OAuthMixin(object):
             return self.consumer_key
         if hasattr(settings, 'CONSUMER_KEY'):
             return settings.CONSUMER_KEY
-        else:
-            raise ImproperlyConfigured("Set settings.CONSUMER_KEY or the "
-                                       "consumer_key attribute or "
-                                       "implement get_consumer_key")
 
     def get_consumer_secret(self):
         if self.consumer_secret is not None:
             return self.consumer_secret
         if hasattr(settings, 'CONSUMER_SECRET'):
             return settings.CONSUMER_SECRET
-        else:
-            raise ImproperlyConfigured("Set settings.CONSUMER_SECRET or the "
-                                       "consumer_secret attribute or "
-                                       "implement get_consumer_secret")
+
 
 
 class Authorize(generic.View, OAuthMixin):

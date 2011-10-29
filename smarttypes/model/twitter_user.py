@@ -1,7 +1,6 @@
 
 
 from smarttypes.model.postgres_base_model import PostgresBaseModel
-from smarttypes.utils.validation_utils import mk_valid_ascii_str
 
 from types import NoneType
 from datetime import datetime, timedelta
@@ -179,14 +178,14 @@ class TwitterUser(PostgresBaseModel):
             
         model_user = cls.get_by_id(api_user.id_str)
         if model_user:
-            model_user.screen_name = mk_valid_ascii_str(api_user.screen_name)
+            model_user.screen_name = api_user.screen_name
             model_user.protected = api_user.protected
             
             model_user.time_zone = api_user.time_zone
             model_user.lang = api_user.lang
-            model_user.location_name = mk_valid_ascii_str(api_user.location)
-            model_user.description = mk_valid_ascii_str(api_user.description)
-            model_user.url = mk_valid_ascii_str(api_user.url)            
+            model_user.location_name = api_user.location
+            model_user.description = api_user.description
+            model_user.url = api_user.url            
             
             model_user.following_count = api_user.friends_count
             model_user.followers_count = api_user.followers_count
@@ -197,14 +196,14 @@ class TwitterUser(PostgresBaseModel):
             properties = {
                 'id':api_user.id_str,
                 'twitter_account_created':api_user.created_at,
-                'screen_name':mk_valid_ascii_str(api_user.screen_name),                 
+                'screen_name':api_user.screen_name,                 
                 'protected':api_user.protected,
                 
                 'time_zone':api_user.time_zone,
                 'lang':api_user.lang,
-                'location_name':mk_valid_ascii_str(api_user.location), 
-                'description':mk_valid_ascii_str(api_user.description), 
-                'url':mk_valid_ascii_str(api_user.url),
+                'location_name':api_user.location, 
+                'description':api_user.description, 
+                'url':api_user.url,
                 
                 'following_count':api_user.friends_count,
                 'followers_count':api_user.followers_count,

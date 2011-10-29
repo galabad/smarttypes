@@ -9,14 +9,13 @@ from webob import Request
 
 urls = [
     (r'^$', smarttypes.controllers.home),
-   
+    (r'sign_in/?$', smarttypes.controllers.sign_in),
+    (r'my_account/?$', smarttypes.controllers.my_account),
     (r'blog/?', smarttypes.controllers.blog),
     
-    (r'logged_in_user/?$', smarttypes.controllers.logged_in_user),
     (r'user/?$', smarttypes.controllers.user),
     (r'group/?$', smarttypes.controllers.group),
     
-    (r'sign_in/?$', smarttypes.controllers.sign_in),
     (r'about/?$', smarttypes.controllers.about),
     (r'contact/?$', smarttypes.controllers.contact),
 ]
