@@ -40,14 +40,10 @@ if __name__ == "__main__":
         args_dict = eval(sys.argv[1])
     screen_name = args_dict['screen_name']
     twitter_user = TwitterUser.by_screen_name(screen_name)
-    
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
-
     monitor_these_user_ids = twitter_user.following_following_ids[:4900]
     print "Num of users to monitor: %s" % len(monitor_these_user_ids)
     listener = Listener(monitor_these_user_ids)
-    stream = Stream(auth,listener,secure=True)
+    stream = Stream(twitter_user.credentials.auth_handle, listener, secure=True)
 
     stream.filter(follow=monitor_these_user_ids)
 

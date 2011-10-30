@@ -80,10 +80,8 @@ if __name__ == "__main__":
     else:
         args_dict = eval(sys.argv[1])
     screen_name = args_dict['screen_name']
-    
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
-    api_handle = tweepy.API(auth)
+    model_user = TwitterUser.by_screen_name(screen_name)
+    api_handle = model_user.credentials.api_handle
     
     twitter_user = load_user_and_the_people_they_follow(api_handle, screen_name)
     load_this_user = twitter_user.get_someone_in_my_network_to_load()

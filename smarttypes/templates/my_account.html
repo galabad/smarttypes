@@ -7,27 +7,28 @@
     lang="en">
 
 <xi:include href="master.html" />      
-<head>
-
-</head>                    
+<head></head>                    
 
 <body>
 
     <div style="text-align:center;">
         <p>
-        Thank you for registering w/ SmartTypes, we're already learning about your network and interests.
-	We'll send you an email every week, highlighting communities, people, and content that you'll find interesting.
-	<a href="">Check out our github repo</a> to learn more about how we do what we do.
+            We'll send you an email every week, highlighting communities, people, and content of interest.
+            <a href="https://github.com/smarttypes/SmartTypes" target="_blank">Check out our github repo</a> 
+            to learn more about how we do what we do.
         </p>
-
-	<p>
-	Oh ya, we need your email address:
-	</p>
-
-	<form name="input" action="/save_email" method="post">
-	    Email: <input type="text" name="email" />
-	    <input type="submit" value="Submit" />
-	</form> 
+    
+        
+        <form name="input" action="/save_email" method="post" style="margin:20px 0;">
+            <?python
+                email_value = logged_in_credentials.email if logged_in_credentials else ''
+                email_label = 'Email:' if email_value else "Email?"
+                email_submit = 'Update' if email_value else 'Add'
+            ?>
+            <span class="label">${email_label}</span>
+            <input type="text" class="text" name="email" value="${email_value}" />
+            <input type="submit" class="submit" value="${email_submit}" />
+        </form> 
     </div>
 
 </body>                                    

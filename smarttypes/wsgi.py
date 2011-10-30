@@ -3,22 +3,28 @@ import smarttypes
 import re, traceback
 from webob import Request
 
-#from smarttypes.utils import web_monitor
-#web_monitor.start(interval=1.0)
-#web_monitor.track('/home/timmyt/projects/smarttypes/smarttypes/templates')
+from smarttypes.utils import web_monitor
+web_monitor.start(interval=1.0)
+web_monitor.track('/home/timmyt/projects/smarttypes/smarttypes/templates')
 
 urls = [
     (r'^$', smarttypes.controllers.home),
+    
     (r'sign_in/?$', smarttypes.controllers.sign_in),
     (r'my_account/?$', smarttypes.controllers.my_account),
-    (r'blog/?', smarttypes.controllers.blog),
+    (r'save_email/?$', smarttypes.controllers.save_email),
     
     (r'user/?$', smarttypes.controllers.user),
-    (r'group/?$', smarttypes.controllers.group),
+    (r'group/?$', smarttypes.controllers.group),    
+    
+    (r'blog/?', smarttypes.controllers.blog),
     
     (r'about/?$', smarttypes.controllers.about),
     (r'contact/?$', smarttypes.controllers.contact),
+    
+    (r'static/?', smarttypes.controllers.static),
 ]
+
 
 def application(environ, start_response):
     path = environ.get('PATH_INFO', '').lstrip('/')

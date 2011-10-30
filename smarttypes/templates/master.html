@@ -39,17 +39,12 @@
 
         <div style="float:right;text-align:right;">
             <div style="margin-top:68px;">
-                <span py:if="defined('logged_in_user')" py:strip="">
-                    <a href="/logged_in_user?screen_name=${logged_in_user.screen_name}" 
-                         class="${'active' if active_tab in ['logged_in_user', 'user', 'group'] else ''}">Explore</a>
-                    <span style="padding:0 5px;color:#cccccc; ">|</span>
-                </span>
-                
                 <a href="/blog" class="${'active' if active_tab == 'blog' else ''}">Blog</a>
                 
                     <span style="padding:0 5px;color:#cccccc; ">|</span>
                     
-                <a href="/sign_in" class="${'active' if active_tab == 'sign_in' else ''}">Sign in w/ twitter</a>
+                <a py:if="not logged_in_user" href="/sign_in" class="${'active' if active_tab == 'sign_in' else ''}">Sign in w/ twitter</a>
+                <a py:if="logged_in_user" href="/my_account" class="${'active' if active_tab == 'my_account' else ''}">${logged_in_user.screen_name}</a>
                 <img src="/static/images/twitter_16_gray.png" style="border:none;padding:0;" alt="twitter logo"/>
             </div>
         </div><!--links block-->

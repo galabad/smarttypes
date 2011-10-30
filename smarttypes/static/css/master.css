@@ -2,49 +2,49 @@
 /*everything*/
 
     *{margin:0;padding:0;font-size:17px;}
-      
+
 /*root*/
 
-      #page_wrapper{font-family:'ColaborateLightRegular',Arial,sans-serif;color:#666666;line-height:135%;}
-      
+    #page_wrapper{font-family:'ColaborateLightRegular',Arial,sans-serif;color:#666666;line-height:135%;}
+
 /*headers */
-    
+
     h1,.h1, h2,.h2, h3,.h3, h4,.h4{font-weight:bold;margin:30px 0 10px 0;color:#333333;}
     h1,.h1{font-size:20px;}
     h2,.h2{font-size:18px;}
 
 /*paragraphs*/
-    
+
     p{margin:10px 0;}  
-    
+
 /*lists*/    
-    
+
     ol, ul{padding:0 0 0 30px;margin:10px 15px;}
     ol li, ul li{margin:0 0 10px 0;}
-    
+
 /*links*/
     /*more red #990000, more orange #993300*/
     a{color:#0000CC; text-decoration:none;}
     a:hover{text-decoration:underline;}
     a.active{color:#999999;}
-    
+
     #sub_nav a{font-size:13px;}
-    
+
 /*tables*/
     table.results{border-collapse:collapse;width:100%;}
     table.results,table.results th,table.results td{border: 1px solid #cccccc;}
     table.results th,table.results td{padding:10px;} 
-    
+
 /*other stuff */
 
     .clear{clear:both;line-height:0px;}
-    
+
     img{border:none;padding:20px;}
-    
+
     blockquote{
         margin:10px 0;
         padding:5px 10px;
-	font-style:italic;
+    font-style:italic;
 
     }   
     blockquote p, 
@@ -54,7 +54,7 @@
     blockquote a{
         font-size:16px;
     }
-    
+
     pre{
         margin:10px 0;
         padding:5px 10px;
@@ -73,9 +73,9 @@
         font-size:18px;
         padding:0 5px;    
     }
-    
+
     .list_item {margin:20px;padding:5px; border:solid 2px #F0F0F0;}   
-    
+
 /*==============================
 master template
 ==============================*/
@@ -89,7 +89,7 @@ body{
     width:75%;
     margin:0 auto 0 auto;
 }
-  
+
 #header{
     padding:10px 5px 0px 5px;
     border-bottom:3px double #cccccc;
@@ -117,19 +117,18 @@ body{
 forms
 ==============================*/
 
-.formfield td{text-align:left;padding-bottom:8px;}
-.formfield label {width:100px;padding:0 5px 0 0;}
-.formfield input{width:200px;padding:5px;border:solid 1px #cccccc;}
-
-.submit td{text-align:right;padding-bottom:5px;}
-.submit input{
+span.label{font-weight: bold;font-size:18px;}
+input.text{padding: 4px 4px;}
+input.submit{
     color: #FFFFFF;
     font-weight: normal;
-    padding: 4px 7px;
+    padding: 2px 4px;
     background-color:#333333;
     cursor:pointer;
 }
-
-.submit input:hover{
+input.submit:hover{
     background-color:#101010;
 }
+
+
+

@@ -1,7 +1,7 @@
 
 
 from smarttypes.model.postgres_base_model import PostgresBaseModel
-
+from smarttypes import model
 from types import NoneType
 from datetime import datetime, timedelta
 import numpy, random, heapq
@@ -40,6 +40,10 @@ class TwitterUser(PostgresBaseModel):
     MAX_FOLLOWING_COUNT = 1000
     TRY_AGAIN_AFTER_FAILURE_THRESHOLD = timedelta(days=31)
 
+    @property
+    def credentials(self):
+        return model.twitter_signup.TwitterCredentials.get_by_twitter_id(self.id)
+    
     @property
     def following_ids_default(self):
         if not self.following_ids:

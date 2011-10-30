@@ -9,15 +9,6 @@ from smarttypes.utils.postgres_handle import PostgresHandle
 postgres_handle = PostgresHandle(smarttypes.connection_string)
 
 
-"""
-two main tables:
-- twitter_user
-- twitter_tweet
-
-to preserve old networks (twitter_user), and to help scale (twitter_tweet)
-postfix each table with year_weeknumber ('%Y_%U')
-"""       
-
 try:
     postgres_handle.execute_query("CREATE LANGUAGE plpgsql;", return_results=False)
     postgres_handle.connection.commit()
@@ -26,7 +17,7 @@ except psycopg2.ProgrammingError:
     pass    
 
 ts_modifieddate = """
-CREATE FUNCTION ts_modifieddate() RETURNS trigger
+CREATE OR REPLACE FUNCTION ts_modifieddate() RETURNS trigger
 AS $$
 BEGIN
     NEW.modifieddate = now();
@@ -82,30 +73,48 @@ ON twitter_tweet_%(postfix)s FOR EACH ROW
 EXECUTE PROCEDURE ts_modifieddate();
 """ 
 
-for year_week_st in time_utils.year_weeknum_strs(datetime.now(), 100):
-    postgres_handle.execute_query(twitter_user % {'postfix':year_week_st}, return_results=False)
-    postgres_handle.execute_query(twitter_tweet % {'postfix':year_week_st}, return_results=False)
-    postgres_handle.connection.commit()
+#for year_week_st in time_utils.year_weeknum_strs(datetime.now(), 100):
+    #postgres_handle.execute_query(twitter_user % {'postfix':year_week_st}, return_results=False)
+    #postgres_handle.execute_query(twitter_tweet % {'postfix':year_week_st}, return_results=False)
+    #postgres_handle.connection.commit()
 
-twitter_signup = """
-create table twitter_signup(
+twitter_credentials = """
+create table twitter_credentials(
     createddate timestamp not null default now(),
     modifieddate timestamp not null default now(),
 
-    id serial unique not null,
-    request_key text unique not null,
-    request_secret text unique not null,
-    access_key text unique,
-    access_secret text unique,
+    access_key text unique not null,
+    access_secret text unique not null,
     twitter_id text unique,
-    twitter_username text,
     email text
 );
-CREATE TRIGGER twitter_signup_modified BEFORE UPDATE
-ON twitter_signup FOR EACH ROW
+CREATE TRIGGER twitter_credentials_modified BEFORE UPDATE
+ON twitter_credentials FOR EACH ROW
 EXECUTE PROCEDURE ts_modifieddate();  
 """
-postgres_handle.execute_query(twitter_signup, return_results=False)
+postgres_handle.execute_query(twitter_credentials, return_results=False)
 postgres_handle.connection.commit()
+
+twitter_session = """
+create table twitter_session(
+    createddate timestamp not null default now(),
+    modifieddate timestamp not null default now(),
+
+    request_key text unique not null,
+    request_secret text unique not null,
+    access_key text,
+    foreign key(access_key) references twitter_credentials(access_key) on delete cascade
+);
+CREATE TRIGGER twitter_session_modified BEFORE UPDATE
+ON twitter_session FOR EACH ROW
+EXECUTE PROCEDURE ts_modifieddate();  
+"""
+postgres_handle.execute_query(twitter_session, return_results=False)
+postgres_handle.connection.commit()
+
+
+
+
+
 
 

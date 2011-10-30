@@ -1,7 +1,7 @@
 
 import tweepy
 from smarttypes.config import *
-from smarttypes.model.twitter_signup import TwitterSignup
+from smarttypes.model.twitter_signup import TwitterSession, TwitterCredentials 
 from dateutil import tz
 from datetime import datetime
 
@@ -18,23 +18,25 @@ def get_rate_limit_status(api_handle):
     return remaining_hits, reset_time
 
 def get_signin_w_twitter_url():
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET, callback=CALLBACK)
     request_token = auth._get_request_token()
-    TwitterSignup.start_signup(request_token.key, request_token.secret)
+    TwitterSession.create(request_token.key, request_token.secret)
     url = "https://api.twitter.com/oauth/authenticate" #might want this: '&force_login=true'
-    request = tweepy.oauth.OAuthRequest.from_token_and_callback(token=request_token, http_url=url)
+    request = tweepy.oauth.OAuthRequest.from_token_and_callback(token=request_token, http_url=url, callback=CALLBACK)
     return request.to_url()
 
-def attempt_to_complete_signin(request_key, verifier):
+def complete_signin(request_key, verifier):
     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    twitter_signup = TwitterSignup.get_by_request_key(request_key)
-    auth.set_request_token(request_key, twitter_signup.request_secret)
+    session = TwitterSession.get_by_request_key(request_key)
+    auth.set_request_token(request_key, session.request_secret)
     auth.get_access_token(verifier)
-    #they may have signed up already
-    if not TwitterSignup.get_by_access_key(auth.access_token.key):
-        twitter_signup.access_key = auth.access_token.key
-        twitter_signup.access_secret = auth.access_token.secret
-        twitter_signup.save()
+    #may have signed up already
+    credentials = TwitterCredentials.get_by_access_key(auth.access_token.key)
+    if not credentials:
+        credentials = TwitterCredentials.create(auth.access_token.key, auth.access_token.secret)
+    session.access_key = credentials.access_key
+    return session.save()
+        
 
 
     
