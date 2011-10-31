@@ -73,10 +73,10 @@ ON twitter_tweet_%(postfix)s FOR EACH ROW
 EXECUTE PROCEDURE ts_modifieddate();
 """ 
 
-#for year_week_st in time_utils.year_weeknum_strs(datetime.now(), 100):
-    #postgres_handle.execute_query(twitter_user % {'postfix':year_week_st}, return_results=False)
-    #postgres_handle.execute_query(twitter_tweet % {'postfix':year_week_st}, return_results=False)
-    #postgres_handle.connection.commit()
+for year_week_st in time_utils.year_weeknum_strs(datetime.now(), 100):
+    postgres_handle.execute_query(twitter_user % {'postfix':year_week_st}, return_results=False)
+    postgres_handle.execute_query(twitter_tweet % {'postfix':year_week_st}, return_results=False)
+    postgres_handle.connection.commit()
 
 twitter_credentials = """
 create table twitter_credentials(
