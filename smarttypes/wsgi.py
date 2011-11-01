@@ -3,10 +3,6 @@ import smarttypes
 import re, traceback
 from webob import Request
 
-from smarttypes.utils import web_monitor
-web_monitor.start(interval=1.0)
-web_monitor.track('/home/timmyt/projects/smarttypes/smarttypes/templates')
-
 urls = [
     (r'^$', smarttypes.controllers.home),
     

@@ -23,10 +23,11 @@ _queue = Queue.Queue()
 _lock = threading.Lock()
 
 def _restart(path):
+    sys.stderr = open('/dev/null')
     _queue.put(True)
     prefix = 'monitor (pid=%d):' % os.getpid()
-    print >> sys.stderr, '%s Change detected to \'%s\'.' % (prefix, path)
-    print >> sys.stderr, '%s Triggering process restart.' % prefix
+    print '%s Change detected to \'%s\'.' % (prefix, path)
+    print '%s Triggering process restart.' % prefix
     os.kill(os.getpid(), signal.SIGINT)
 
 def _modified(path):

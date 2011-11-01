@@ -2,7 +2,7 @@
 from multiprocessing import Process
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 import time
-import sys
+import sys, os
 
 class CustomRequestHandler(WSGIRequestHandler):
     def log_message(self, format, *args):
@@ -10,6 +10,10 @@ class CustomRequestHandler(WSGIRequestHandler):
         
 def start_app():
     from smarttypes.wsgi import application
+    from smarttypes.utils import web_monitor
+    web_monitor.start(interval=1.0)
+    project_path = os.path.dirname(os.path.abspath(__file__))
+    web_monitor.track(project_path + '/templates/')
     port = 8282
     httpd = make_server('localhost', port, application,handler_class=CustomRequestHandler)
     print "Serving on port %s..." % port
