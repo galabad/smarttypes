@@ -26,7 +26,7 @@ class TwitterTweet(PostgresBaseModel):
             properties = {
                 'id':api_tweet.id_str,
                 'author_id':api_tweet.author.id_str,
-                'retweet_count':api_tweet.retweet_count,
+                'retweet_count':int(str(api_tweet.retweet_count).replace('+', '')),
                 'tweet_text':api_tweet.text,
             }
             model_tweet = cls(**properties)

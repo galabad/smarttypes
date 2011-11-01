@@ -1,6 +1,6 @@
 
 #twitter stuff
-CALLBACK = ''
+CALLBACK = 'http://localhost:8282/my_account'
 CONSUMER_KEY = ''
 CONSUMER_SECRET = ''
 

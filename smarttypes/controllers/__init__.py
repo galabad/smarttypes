@@ -23,7 +23,8 @@ def sign_in(req, credentials):
 def my_account(req, credentials):
     if 'oauth_token' in req.params and 'oauth_verifier' in req.params:
         session = twitter_api_utils.complete_signin(req.params['oauth_token'], req.params['oauth_verifier'])
-        return {'cookies':[('session', session.request_key)], 'credentials':session.credentials}
+        if session:
+            return {'cookies':[('session', session.request_key)], 'credentials':session.credentials}
     return {}
 
 @postgres_web_decorator()

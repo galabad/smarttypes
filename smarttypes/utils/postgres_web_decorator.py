@@ -7,14 +7,15 @@ from smarttypes.model.twitter_signup import TwitterSession
 
 def postgres_web_decorator():
     def wrapper0(controller):
-        
         def wrapper1(request):
             postgres_handle = PostgresHandle(smarttypes.connection_string)
             PostgresBaseModel.postgres_handle = postgres_handle
             try:
                 credentials = None
                 if request.cookies.get('session'):
-                    credentials = TwitterSession.get_by_request_key(request.cookies['session']).credentials
+                    session = TwitterSession.get_by_request_key(request.cookies['session'])
+                    if session:
+                        credentials = session.credentials
                 response_dict = controller(request, credentials)
                 web_response = WebResponse(request, controller.__name__, response_dict, credentials)
                 response_headers = web_response.get_response_headers()

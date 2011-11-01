@@ -38,7 +38,7 @@ numpy==1.6.1
 psycopg2==2.4.2
 python-dateutil==2.0
 scipy==0.9.0
-tweepy==1.7.1 (need to install from github repo -- https://github.com/tweepy/tweepy/blob/master/INSTALL)
+tweepy==1.7.1 (install from github repo -- https://github.com/tweepy/tweepy/blob/master/INSTALL)
 WebOb==1.2b2
 
 #add config params
@@ -50,19 +50,20 @@ $ cp config.py.blank config.py
 #to get CONSUMER_KEY and CONSUMER_SECRET you need to register your 
 #application @ https://dev.twitter.com/apps/new
 
-#ACCESS_KEY and ACCESS_SECRET are the tokens you get when someone 
-#"Sign's in w/ twitter"
-
-#once you have your CONSUMER_KEY and CONSUMER_SECRET you can use 
-#scripts/setup_twitter_oauth.py to get an ACCESS_KEY and ACCESS_SECRET
-#think of it as signing up for your own app
-
 #now, assuming postgres is installed, create the data schema
 $ python scripts/create_db_schema.py
 
-#the moment of truth, get the people you follow, and the people they follow
-$ python scripts/get_twitter_friends.py
+#start the dev_server
+$ python start_dev_server.py
 
+#now pull up http://localhost:8282/ in your browser
+
+#click the 'Sign in w/ twitter' link, and sign up for your app
+
+#to begin loading your social network:
+$ python scripts/get_twitter_friends.py YourTwitterHandle
+
+#note, the twitter handle is case sensitive
 
 ***********************************************************
 License
