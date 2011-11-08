@@ -76,11 +76,14 @@ def load_user_and_the_people_they_follow(api_handle, screen_name):
 if __name__ == "__main__":
     
     if not len(sys.argv) > 1:
-        args_dict = {'screen_name':'SmartTypes'}
+        raise Exception('Need a twitter handle.')
     else:
-        args_dict = eval(sys.argv[1])
-    screen_name = args_dict['screen_name']
+        screen_name = sys.argv[1]
+        
     model_user = TwitterUser.by_screen_name(screen_name)
+    if not model_user.credentials:
+        raise Exception('%s does not have api credentials.' % screen_name)
+    
     api_handle = model_user.credentials.api_handle
     
     twitter_user = load_user_and_the_people_they_follow(api_handle, screen_name)

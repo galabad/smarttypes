@@ -24,8 +24,14 @@ def new_process():
     p.start()
     return p
 
-p = new_process()
-while True:
-    if p.exitcode:
-        p = new_process()
-    time.sleep(2.0)
+if __name__ == '__main__':
+    p = new_process()
+    while True:
+        if p.exitcode:
+            p = new_process()
+        time.sleep(2.0)
+        
+        
+        
+        
+        

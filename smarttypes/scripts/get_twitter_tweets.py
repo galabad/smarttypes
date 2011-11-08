@@ -35,11 +35,14 @@ class Listener(StreamListener):
 if __name__ == "__main__":
 
     if not len(sys.argv) > 1:
-        args_dict = {'screen_name':'SmartTypes'}
+        raise Exception('Need a twitter handle.')
     else:
-        args_dict = eval(sys.argv[1])
-    screen_name = args_dict['screen_name']
+        screen_name = sys.argv[1]
+        
     twitter_user = TwitterUser.by_screen_name(screen_name)
+    if not twitter_user.credentials:
+        raise Exception('%s does not have api credentials.' % screen_name)
+    
     monitor_these_user_ids = twitter_user.following_following_ids[:4900]
     print "Num of users to monitor: %s" % len(monitor_these_user_ids)
     listener = Listener(monitor_these_user_ids)

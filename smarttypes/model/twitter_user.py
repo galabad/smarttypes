@@ -57,7 +57,7 @@ class TwitterUser(PostgresBaseModel):
 
     @property
     def following_following_ids(self):
-        return_ids = set()
+        return_ids = set(self.following_ids_default)
         for following in self.following:
             return_ids.add(following.id)
             for following_following_id in following.following_ids_default:

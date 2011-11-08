@@ -30,7 +30,7 @@ class TwitterCredentials(PostgresBaseModel):
     
     @property
     def twitter_user(self):
-        if not self.twitter_id:
+        if not self.twitter_id or not model.twitter_user.TwitterUser.get_by_id(self.twitter_id):
             user = model.twitter_user.TwitterUser.upsert_from_api_user(self.api_handle.me())
             self.twitter_id = user.id
             self.save()
@@ -58,6 +58,15 @@ class TwitterCredentials(PostgresBaseModel):
         else:
             return None        
         
+    @classmethod
+    def get_all(cls):
+        qry = """
+        select * 
+        from %(table_name)s;
+        """
+        params = {'table_name':cls.get_table_name()}
+        results = cls.postgres_handle.execute_query(qry % params)
+        return [cls(**x) for x in results]
         
         
 class TwitterSession(PostgresBaseModel):
