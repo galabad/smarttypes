@@ -10,10 +10,10 @@ urls = [
     (r'my_account/?$', smarttypes.controllers.my_account),
     (r'save_email/?$', smarttypes.controllers.save_email),
     
-    (r'user/?$', smarttypes.controllers.user),
-    (r'group/?$', smarttypes.controllers.group),    
-    
     (r'blog/?', smarttypes.controllers.blog),
+    
+    (r'user/?$', smarttypes.controllers.user),
+    (r'group/?$', smarttypes.controllers.group),        
     
     (r'about/?$', smarttypes.controllers.about),
     (r'contact/?$', smarttypes.controllers.contact),

@@ -30,7 +30,15 @@ class TwitterTweet(PostgresBaseModel):
                 'tweet_text':api_tweet.text,
             }
             model_tweet = cls(**properties)
-            model_tweet.save()
+            try:
+                model_tweet.save()
+            except Exception, ex:
+                #was it inserted by another process?
+                
+                model_tweet = cls.get_by_id(api_tweet.id_str)
+                if not model_tweet:
+                    raise Exception('Not sure whats happening?')
+            
         return model_tweet
 
         

@@ -50,12 +50,12 @@ class PostgresBaseModel(object):
         return self
     
     @classmethod
-    def get_table_name(cls, go_back=0):        
+    def get_table_name(cls):        
         if not cls.table_time_context:
             return cls.table_name_prefix
         else:
             if not getattr(cls, 'time_context', None):
-                cls.time_context = datetime.now() - (timedelta(days=7) * go_back)
+                cls.time_context = datetime.now()
             return '%s_%s' % (cls.table_name_prefix,cls.time_context.strftime(cls.table_time_context))    
     
     @classmethod

@@ -5,7 +5,8 @@ from smarttypes import model
 from types import NoneType
 from datetime import datetime, timedelta
 import numpy, random, heapq
-import collections
+import collections, csv
+from copy import copy
 
 
 
@@ -59,7 +60,6 @@ class TwitterUser(PostgresBaseModel):
     def following_following_ids(self):
         return_ids = set(self.following_ids_default)
         for following in self.following:
-            return_ids.add(following.id)
             for following_following_id in following.following_ids_default:
                 return_ids.add(following_following_id)
         return list(return_ids)  
@@ -110,7 +110,37 @@ class TwitterUser(PostgresBaseModel):
                     return random_following_following_and_expired_list[0]
                 else:
                     tried_to_load_these_ids.append(random_following_id)
+                    
+    def get_adjacency_matrix(self, distance=10):
         
+        unique_followers = set([self.id])
+        unique_followies = set(self.following_ids)
+        follower_followies_map = {self.id:set(self.following_ids)}
+        for following in self.following:    
+            if following.following_ids != None and following.id not in follower_followies_map:
+                unique_followers.add(following.id)
+                unique_followies = unique_followies.union(following.following_ids)
+                follower_followies_map[following.id] = set(following.following_ids)
+            for following_following in following.following[:distance]:
+                if following_following.following_ids != None and following_following.id not in follower_followies_map:
+                    unique_followers.add(following_following.id)
+                    unique_followies = unique_followies.union(following_following.following_ids)
+                    follower_followies_map[following_following.id] = set(following_following.following_ids)
+            
+        #gotta be both follower and followie   
+        unique_user_ids = list(unique_followers.intersection(unique_followies))
+            
+        #create adjacency_matrix
+        adjacency_matrix = []    
+        for follower_id in unique_user_ids:
+            follower_row = []
+            for followie_id in unique_user_ids:
+                follower_row.append(1 if followie_id in follower_followies_map[follower_id] else 0)
+            adjacency_matrix.append(follower_row)
+        return numpy.array(adjacency_matrix), unique_user_ids
+    
+                    
+                    
 
     ##############################################
     ##group related stuff
@@ -126,6 +156,9 @@ class TwitterUser(PostgresBaseModel):
                 break
             i += 1
         return return_list
+    
+    
+    
     
     #def group_inferred_following(self, num_users, just_ids=True):
         #from smarttypes.model.twitter_group import TwitterGroup
@@ -171,6 +204,23 @@ class TwitterUser(PostgresBaseModel):
             return results[0]
         else:
             return None
+        
+    @classmethod
+    def mk_following_following_csv(cls, screen_name, file_like, ):
+        user = cls.by_screen_name(screen_name)
+        properties = copy(cls.table_columns)
+        properties[0:0] = ['createddate', 'modifieddate']
+        properties.remove('caused_an_error')
+        properties.remove('following_ids')
+        try:
+            writer = csv.writer(file_like)
+            writer.writerow(properties + ['following_ids'])
+            for following in cls.get_by_ids(user.following_following_ids):
+                initial_stuff = [str(following.__dict__.get(x)) for x in properties]
+                following_ids_str = '::'.join(following.following_ids_default)
+                writer.writerow(initial_stuff + [following_ids_str])
+        finally:
+            file_like.close()
         
     @classmethod
     def upsert_from_api_user(cls, api_user):

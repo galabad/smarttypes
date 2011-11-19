@@ -13,32 +13,68 @@
 
 <body>
 
-<h1>A collection of info related to deep learning (aka neural nets, aka restricted boltzman machines)</h1>
+<h1>A collection of info related to deep learning (aka neural nets)</h1>
 
 <ul>
 
 
 <!--Geoff Hinton-->
 <li><p>
-  <h3><a href="http://www.cs.toronto.edu/~hinton/">Geoff Hinton</a> (the father of neural nets)</h3> 
-  <ul>
+  <h3 style="font-weight:normal;"><a href="http://www.cs.toronto.edu/~hinton/">Geoff Hinton</a> 
+  (introduced back-propagation, coinvented boltzmann machines)</h3> 
+  <ul>  
    <li><p>
-<a href="http://www.youtube.com/watch?v=AyzOUbkUf3M">The Next Generation of Neural Networks</a>
+Hinton, G. E. and Salakhutdinov, R. R. (2006)<br/>
+Reducing the dimensionality of data with neural networks.<br/>
+Science, Vol. 313. no. 5786, pp. 504 - 507, 28 July 2006.<br/>
+[<a href="http://www.cs.toronto.edu/%7Ehinton/science.pdf">
+full paper </a>]
+[<a href="http://www.cs.toronto.edu/%7Ehinton/absps/science_som.pdf">
+supporting online material (pdf) </a>]
+[<a href="http://www.cs.toronto.edu/%7Ehinton/MatlabForSciencePaper.html">
+Matlab code </a>]
    </p></li>
 
    <li><p>
-<a href="http://www.youtube.com/watch?v=VdIURAu1-aU">Recent Developments in Deep Learning</a>
+<a href="http://www.youtube.com/watch?v=AyzOUbkUf3M">YouTube (2007) The Next Generation of Neural Networks (1hr)</a>
+   </p></li>
+
+   <li><p>
+<a href="http://www.youtube.com/watch?v=VdIURAu1-aU">YouTube (2010) Recent Developments in Deep Learning (1hr)</a>
    </p></li>
   </ul>
 </p></li>
 
+<!--Yann LeCun-->
+<li><p>
+  <h3 style="font-weight:normal;"><a href="http://yann.lecun.com/">Yann LeCun</a>
+  (developed convolutional neural networks)</h3> 
+  <ul>
+   <li><p>
+The <a href="http://www.cs.nyu.edu/~yann/research/index.html">Computational and Biological Learning Lab</a>: 
+Our research is focused on Machine Learning, Computer Vision, Robotics, Computational Neuroscience, and various related topics. 
+   </p></li>
+
+   <li><p>
+<a href="http://lecun.com/exdb/lenet/index.html">Convolutional Neural Networks </a>
+Convolutional Neural Networks are a special kind of multi-layer neural networks. 
+Like almost every other neural networks they are trained with a version of the back-propagation algorithm. 
+Where they differ is in the architecture.
+   </p></li>
+  </ul>
+</p></li>
 
 <!--Andrew Ng-->
 <li><p>
-  <h3><a href="http://www.cs.stanford.edu/people/ang/">Andrew Ng</a> (tutorials)</h3> 
+  <h3 style="font-weight:normal;"><a href="http://www.cs.stanford.edu/people/ang/">Andrew Ng</a>
+  (bringing neural nets to the masses)
+  </h3> 
   <ul>
    <li><p>
-<a href="http://ufldl.stanford.edu/wiki/index.php/UFLDL_Tutorial">This tutorial will teach you the main ideas of Unsupervised Feature Learning and Deep Learning</a>. By working through it, you will also get to implement several feature learning/deep learning algorithms, get to see them work for yourself, and learn how to apply/adapt these ideas to new problems. 
+<a href="http://ufldl.stanford.edu/wiki/index.php/UFLDL_Tutorial">
+This tutorial will teach you the main ideas of Unsupervised Feature Learning and Deep Learning.</a>
+By working through it, you will also get to implement several feature learning/deep learning algorithms, 
+get to see them work for yourself, and learn how to apply/adapt these ideas to new problems. 
    </p></li>
 
    <li><p>
@@ -50,10 +86,10 @@
 
 <!--Ruslan Salakhutdinov-->
 <li><p>
-  <h3><a href="http://www.utstat.toronto.edu/~rsalakhu/">Ruslan Salakhutdinov</a> (matlab examples)</h3> 
+  <h3 style="font-weight:normal;"><a href="http://www.utstat.toronto.edu/~rsalakhu/">Ruslan Salakhutdinov</a></h3>
   <ul>
    <li><p>
-<a href="books.nips.cc/papers/files/nips22/NIPS2009_0817.pdf">Replicated Softmax: an Undirected Topic Model</a> The learned topics are more general than those found by LDA because precision is achieved by intersecting many general topics rather than by selecting a single precise topic to generate each word.
+<a href="http://books.nips.cc/papers/files/nips22/NIPS2009_0817.pdf">Replicated Softmax: an Undirected Topic Model</a> The learned topics are more general than those found by LDA because precision is achieved by intersecting many general topics rather than by selecting a single precise topic to generate each word.
    </p></li>
 
    <li><p>
@@ -73,8 +109,21 @@
 
 <!--Welcome to Deep Learning-->
 <li><p>
-  <h3><a href="http://deeplearning.net/">Welcome to Deep Learning</a> (python examples)</h3> 
+  <h3 style="font-weight:normal;"><a href="http://deeplearning.net/">Python implementations</a></h3> 
   <ul>
+  
+   <li><p>
+ <a href="http://www.fylance.de/rsm/">A Python implementation of the Replicated Softmax Topic Model</a>
+ An implementation of R. Salakhutdinov and G.E. Hinton's Replicated Softmax Topic Model
+   </p></li>
+  
+   <li><p>
+ <a href="https://github.com/deeplearningais/CUV">The CUV Library</a> is a C++ framework with python 
+ bindings for easy use of Nvidia CUDA functions on matrices. 
+ <a href="http://peekaboo-vision.blogspot.com/2010/11/restricted-boltzmann-machine-on-cuda.html">It contains an RBM implementation</a> 
+ as well as annealed importance sampling code and code to calculate the partition function exactly.   
+   </p></li>
+
    <li><p>
 <a href="http://deeplearning.net/software/theano">Theano</a> -- CPU/GPU symbolic expression compiler in python (from LISA lab at University of Montreal)
    </p></li>

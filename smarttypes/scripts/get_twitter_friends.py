@@ -11,6 +11,7 @@ import tweepy
 from tweepy import TweepError
 from smarttypes.model.twitter_user import TwitterUser
 from smarttypes.utils.twitter_api_utils import get_rate_limit_status
+from datetime import datetime, timedelta
 
 MAX_FOLLOWING_COUNT = TwitterUser.MAX_FOLLOWING_COUNT
 AVG_PEOPLE_RETURNED_PER_QUERY = 80
@@ -39,7 +40,8 @@ def load_user_and_the_people_they_follow(api_handle, screen_name):
             model_user.save()
             return model_user
     
-    model_user = TwitterUser.upsert_from_api_user(api_user)        
+    model_user = TwitterUser.upsert_from_api_user(api_user)
+    postgres_handle.connection.commit()
     
     if api_user.protected:
         print "\t %s is protected" % screen_name
@@ -48,6 +50,7 @@ def load_user_and_the_people_they_follow(api_handle, screen_name):
     if api_user.friends_count > MAX_FOLLOWING_COUNT:
         print "\t %s follows too many people, %s" % (screen_name, api_user.friends_count)
         model_user.save_following_ids([])
+        postgres_handle.connection.commit()
         return model_user
     
     print "Loading the people %s follows" % screen_name    
@@ -60,6 +63,7 @@ def load_user_and_the_people_they_follow(api_handle, screen_name):
             print "Setting caused_an_error for %s " % screen_name
             model_user.caused_an_error = datetime.now()
             model_user.save()
+            postgres_handle.connection.commit()
             return model_user
     
     for api_following in api_following_list:
@@ -68,7 +72,6 @@ def load_user_and_the_people_they_follow(api_handle, screen_name):
         model_following = TwitterUser.upsert_from_api_user(api_following)
         following_ids.append(model_following.id)
     model_user.save_following_ids(following_ids)
-    
     postgres_handle.connection.commit()
     return model_user
 
@@ -81,6 +84,14 @@ if __name__ == "__main__":
         screen_name = sys.argv[1]
         
     model_user = TwitterUser.by_screen_name(screen_name)
+    if not model_user:
+        TwitterUser.time_context = datetime.now() - timedelta(days=7)
+        model_user = TwitterUser.by_screen_name(screen_name)
+        if not model_user:
+            raise Exception('Cant find %s' % screen_name)
+        else:
+            TwitterUser.time_context = datetime.now()
+    
     if not model_user.credentials:
         raise Exception('%s does not have api credentials.' % screen_name)
     

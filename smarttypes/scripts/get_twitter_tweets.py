@@ -9,6 +9,7 @@ PostgresBaseModel.postgres_handle = postgres_handle
 
 from smarttypes.model.twitter_user import TwitterUser
 from smarttypes.model.twitter_tweet import TwitterTweet
+from datetime import datetime, timedelta
 
 import tweepy
 from tweepy.streaming import StreamListener, Stream
@@ -39,11 +40,13 @@ if __name__ == "__main__":
     else:
         screen_name = sys.argv[1]
         
+    TwitterUser.time_context = datetime.now() - timedelta(days=7)
     twitter_user = TwitterUser.by_screen_name(screen_name)
     if not twitter_user.credentials:
         raise Exception('%s does not have api credentials.' % screen_name)
     
     monitor_these_user_ids = twitter_user.following_following_ids[:4900]
+    monitor_these_user_ids.append(twitter_user.id)
     print "Num of users to monitor: %s" % len(monitor_these_user_ids)
     listener = Listener(monitor_these_user_ids)
     stream = Stream(twitter_user.credentials.auth_handle, listener, secure=True)
