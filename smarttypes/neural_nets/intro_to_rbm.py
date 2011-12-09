@@ -15,8 +15,8 @@ class RBM:
             # a Gaussian distribution with mean 0 and standard deviation 0.1.
             self.weights = 0.1 * np.random.randn(self.num_visible, self.num_hidden)    
             # Insert weights for the bias units into the first row and first column.
-            visible_bias = sum(self.weights)/self.num_visible
-            hidden_bias = -4
+            visible_bias = 0
+            hidden_bias = 0
             self.weights = np.insert(self.weights, 0, visible_bias, axis=0) #visible bias
             self.weights = np.insert(self.weights, 0, hidden_bias, axis=1) #hidden bias
         else:

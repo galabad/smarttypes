@@ -7,7 +7,7 @@ Smarttypes is an open source (mostly python) library for social network analysis
 
 We provide automated tools to pull and store social connections and content.  Our scripts pull as much data as they can, while respecting service rate limits.
 
-Data is stored in postgres, and partitioned by year_week.  The db schema was built to scale.
+Data is stored in postgres, and partitioned by year_week.  The db schema is built to scale.
 
 Enough of the boring stuff, our purpose is to explore, highlight, and improve social analysis algos and visualizations.
 

@@ -116,31 +116,33 @@ class TwitterUser(PostgresBaseModel):
         unique_followers = set([self.id])
         unique_followies = set(self.following_ids)
         follower_followies_map = {self.id:set(self.following_ids)}
-        for following in self.following:    
-            if following.following_ids != None and following.id not in follower_followies_map:
+        for following in self.following:
+            if following.following_ids and following.id not in follower_followies_map:
                 unique_followers.add(following.id)
                 unique_followies = unique_followies.union(following.following_ids)
                 follower_followies_map[following.id] = set(following.following_ids)
             for following_following in following.following[:distance]:
-                if following_following.following_ids != None and following_following.id not in follower_followies_map:
+                if following_following.following_ids and following_following.id not in follower_followies_map:
                     unique_followers.add(following_following.id)
                     unique_followies = unique_followies.union(following_following.following_ids)
                     follower_followies_map[following_following.id] = set(following_following.following_ids)
             
+        #unique_followers = list(unique_followers)
+        #unique_followies = list(unique_followies)
         #gotta be both follower and followie   
-        unique_user_ids = list(unique_followers.intersection(unique_followies))
-            
-        #create adjacency_matrix
+        #unique_user_ids = list(unique_followers.intersection(unique_followies))
+
+        #create return structure
         adjacency_matrix = []    
-        for follower_id in unique_user_ids:
-            follower_row = []
-            for followie_id in unique_user_ids:
-                follower_row.append(1 if followie_id in follower_followies_map[follower_id] else 0)
-            adjacency_matrix.append(follower_row)
-        return numpy.array(adjacency_matrix), unique_user_ids
-    
-                    
-                    
+        for follower_id in unique_followers:
+            followie_row = []
+            for followie_id in unique_followies:
+                value = 1 if followie_id in follower_followies_map[follower_id] else 0
+                followie_row.append(value)
+            adjacency_matrix.append(followie_row)
+                
+        #matrix, samples, features
+        return numpy.array(adjacency_matrix), list(unique_followers), list(unique_followies)
 
     ##############################################
     ##group related stuff

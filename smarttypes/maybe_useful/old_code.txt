@@ -1,0 +1,10 @@
+
+dig up these old files -- they may be useful:
+ - smarttypes/scripts/save_google_doc_revision.py
+ - smarttypes/scripts/delicious_bookmark_getter.py
+ - http://stackoverflow.com/questions/953481/restore-a-deleted-file-in-a-git-repo
+
+
+
+
+
