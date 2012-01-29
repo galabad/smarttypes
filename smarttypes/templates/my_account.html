@@ -13,20 +13,22 @@
 
     <div style="text-align:center;">
         <p>
-            We'll send you an email every week, highlighting communities, people, and content of interest.
+            We're pulling your data, we'll send you an email when it's ready.
+        </p>
+        
+        <p>
             <a href="https://github.com/smarttypes/SmartTypes" target="_blank">Check out our github repo</a> 
             to learn more about how we do what we do.
         </p>
-    
         
         <form name="input" action="/save_email" method="post" style="margin:20px 0;">
             <?python
-                email_value = logged_in_credentials.email if logged_in_credentials else ''
+                email_value = credentials.email if credentials else ''
                 email_label = 'Email:' if email_value else "Email?"
                 email_submit = 'Update' if email_value else 'Add'
             ?>
             <span class="label">${email_label}</span>
-            <input type="text" class="text" name="email" value="${email_value}" />
+            <input type="text" style="text-align:center;" class="text" name="email" value="${email_value}" />
             <input type="submit" class="submit" value="${email_submit}" />
         </form> 
     </div>

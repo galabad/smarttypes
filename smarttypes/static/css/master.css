@@ -9,9 +9,11 @@
 
 /*headers */
 
-    h1,.h1, h2,.h2, h3,.h3, h4,.h4{font-weight:bold;margin:30px 0 10px 0;color:#333333;}
+    h1,.h1, h2,.h2, h3,.h3, h4,.h4{font-weight:bold;margin:20px 0 10px 0;color:#333333;}
     h1,.h1{font-size:20px;}
     h2,.h2{font-size:18px;}
+    h1 a{font-weight:normal;font-size:20px;}
+    h2 a{font-weight:normal;font-size:18px;}
 
 /*paragraphs*/
 
@@ -39,7 +41,7 @@
 
     .clear{clear:both;line-height:0px;}
 
-    img{border:none;padding:20px;}
+    img{border:none;padding:0;}
 
     blockquote{
         margin:10px 0;
@@ -117,17 +119,17 @@ body{
 forms
 ==============================*/
 
-span.label{font-weight: bold;font-size:18px;}
-input.text{padding: 4px 4px;}
+span.label{font-weight: normal;font-size:18px;}
+input.text{padding: 2px;}
 input.submit{
     color: #FFFFFF;
     font-weight: normal;
-    padding: 2px 4px;
-    background-color:#333333;
+    padding: 1px;
+    background-color:#101010;
     cursor:pointer;
 }
 input.submit:hover{
-    background-color:#101010;
+    background-color:#333333;
 }
 
 

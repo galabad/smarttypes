@@ -7,9 +7,10 @@
 
 <head py:match="head" py:attrs="select('@*')">
 
-    <link type="text/css" href="/static/css/master.css" rel="stylesheet"/>
-
+    <link type="text/css" href="/static/css/master.css" rel="stylesheet"/>  
+    
     <script src="/static/js/jquery.js" type="text/javascript"></script>
+    <script src="/static/js/d3-v2.7.1/d3.js" type="text/javascript"></script>
     <script src="/static/js/master.js" type="text/javascript"></script>
 
     <meta name="description" content="${site_description}" />
@@ -40,9 +41,7 @@
         <div style="float:right;text-align:right;">
             <div style="margin-top:68px;">
                 <a href="/blog" class="${'active' if active_tab == 'blog' else ''}">Blog</a>
-                
                     <span style="padding:0 5px;color:#cccccc; ">|</span>
-                    
                 <a py:if="not logged_in_user" href="/sign_in" class="${'active' if active_tab == 'sign_in' else ''}">Sign in w/ twitter</a>
                 <a py:if="logged_in_user" href="/my_account" class="${'active' if active_tab == 'my_account' else ''}">${logged_in_user.screen_name}</a>
                 <img src="/static/images/twitter_16_gray.png" style="border:none;padding:0;" alt="twitter logo"/>

@@ -15,9 +15,6 @@ if __name__ == "__main__":
         raise Exception('Need a twitter handle.')
     else:
         screen_name = sys.argv[1]
-
-    #do it for the prior week
-    TwitterUser.time_context = datetime.now() - timedelta(days=7)
         
     #friends
     friends_file = open('/tmp/%s_twitter_friends.csv' % screen_name, 'w')

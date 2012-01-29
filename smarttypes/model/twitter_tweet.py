@@ -5,8 +5,7 @@ from smarttypes.model.postgres_base_model import PostgresBaseModel
 
 class TwitterTweet(PostgresBaseModel):
 
-    table_name_prefix = 'twitter_tweet'
-    table_time_context = '%Y_%U'
+    table_name = 'twitter_tweet'
     table_key = 'id'
     table_columns = [
         'id',

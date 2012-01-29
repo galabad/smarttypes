@@ -13,7 +13,7 @@ class PostgresBaseModel(object):
         returning %(key_name)s;
         """
         place_holder = ','.join(['%%(%s)s' % x for x in self.table_columns])
-        params = {'table_name':self.get_table_name(),
+        params = {'table_name':self.table_name,
                   'table_columns':','.join(self.table_columns),
                   'place_holder':place_holder,
                   'key_name':self.table_key,}
@@ -28,7 +28,7 @@ class PostgresBaseModel(object):
         returning %(key_name)s;
         """
         place_holder = ','.join(["%s = %%(%s)s" % (x,x) for x in self.table_columns])
-        params = {'table_name':self.get_table_name(),
+        params = {'table_name':self.table_name,
                   'place_holder':place_holder,
                   'key_name':self.table_key,
                   'key_value':'%('+self.table_key+')s'}
@@ -44,19 +44,10 @@ class PostgresBaseModel(object):
         for prop_name in self.table_columns:            
             params[prop_name] = getattr(self, prop_name, self.table_defaults.get(prop_name))
             setattr(self, prop_name, params[prop_name])
-        results = self.postgres_handle.execute_query(qry, params, True)
+        results = self.postgres_handle.execute_query(qry, params, True, print_qry=False)
         if not key_value:
             setattr(self, self.table_key, results[0][self.table_key])
         return self
-    
-    @classmethod
-    def get_table_name(cls):        
-        if not cls.table_time_context:
-            return cls.table_name_prefix
-        else:
-            if not getattr(cls, 'time_context', None):
-                cls.time_context = datetime.now()
-            return '%s_%s' % (cls.table_name_prefix,cls.time_context.strftime(cls.table_time_context))    
     
     @classmethod
     def get_by_id(cls, key_value):
@@ -65,10 +56,10 @@ class PostgresBaseModel(object):
         from %(table_name)s
         where %(key_name)s = %(key_value)s;
         """
-        params = {'table_name':cls.get_table_name(),
+        params = {'table_name':cls.table_name,
                          'key_name':cls.table_key,
                          'key_value':'%(key_value)s'}
-        results = cls.postgres_handle.execute_query(qry % params, {'key_value':key_value})
+        results = cls.postgres_handle.execute_query(qry % params, {'key_value':key_value}, print_qry=False)
         if len(results) == 1:
             return cls(**results[0])
         else:
@@ -82,7 +73,7 @@ class PostgresBaseModel(object):
         from %(table_name)s
         where %(key_name)s in %(key_values)s;
         """
-        params = {'table_name':cls.get_table_name(),
+        params = {'table_name':cls.table_name,
                          'key_name':cls.table_key,
                          'key_values':'%(key_values)s'}
         results = cls.postgres_handle.execute_query(qry % params, {'key_values':tuple(key_values)})
@@ -95,7 +86,7 @@ class PostgresBaseModel(object):
         from %(table_name)s
         where %(name)s = %(value)s;
         """
-        params = {'table_name':cls.get_table_name(),
+        params = {'table_name':cls.table_name,
                          'name':name,
                          'value':'%(value)s'}
         results = cls.postgres_handle.execute_query(qry % params, {'value':value})

@@ -1,7 +1,8 @@
 
 import tweepy
 from smarttypes.config import *
-from smarttypes.model.twitter_signup import TwitterSession, TwitterCredentials 
+from smarttypes.model.twitter_session import TwitterSession
+from smarttypes.model.twitter_credentials import TwitterCredentials 
 from dateutil import tz
 from datetime import datetime
 

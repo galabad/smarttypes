@@ -1,0 +1,25 @@
+
+https://launchpad.net/~igraph/+archive/ppa
+
+graphreduce uses distributed, nonlinear, dimension reduction methods to compress an input graph
+
+reduce a large graph to machine and/or human digestible 2d or 3d data
+
+[insert example here]
+
+we depend on numpy, scipy, scikit-learn, and some python physics library we havent decided on yet:
+
+http://stackoverflow.com/questions/501940/simple-simulations-for-physics-in-python
+
+graphreduce is under active development -- when complete it will:
+
+ - provide tests and plots comparing different nonlinear dimension reduction methods
+
+ - process large graphs in parallel w/out running out of memory
+
+ - work w/ google maps to display pretty 2d visualizations
+
+ - work w/ weighted directed and undirected graphs
+
+ 
+

@@ -12,8 +12,7 @@ from copy import copy
 
 class TwitterUser(PostgresBaseModel):
         
-    table_name_prefix = 'twitter_user'
-    table_time_context = '%Y_%U'
+    table_name = 'twitter_user'
     table_key = 'id'
     table_columns = [
         'id',
@@ -27,11 +26,12 @@ class TwitterUser(PostgresBaseModel):
         'description',
         'url',
         
-        'following_ids',
         'following_count',
         'followers_count',
         'statuses_count',
         'favourites_count',
+        
+        'last_loaded_following_ids',
         'caused_an_error',
     ]
     table_defaults = {
@@ -39,18 +39,40 @@ class TwitterUser(PostgresBaseModel):
     }
     
     MAX_FOLLOWING_COUNT = 1000
+    RELOAD_FOLLOWING_THRESHOLD = timedelta(days=7)
     TRY_AGAIN_AFTER_FAILURE_THRESHOLD = timedelta(days=31)
 
     @property
     def credentials(self):
-        return model.twitter_signup.TwitterCredentials.get_by_twitter_id(self.id)
+        return model.twitter_credentials.TwitterCredentials.get_by_twitter_id(self.id)
     
-    @property
-    def following_ids_default(self):
-        if not self.following_ids:
+    def get_following_ids_at_certain_time(self, at_this_datetime):
+        if not at_this_datetime:
+            raise Exception('get_following_ids_at_certain_time needs a specific datetime')
+        pre_params = {
+            'postfix':at_this_datetime.strftime('%Y_%U'),
+            'user_id':'%(user_id)s',
+        }
+        qry = """
+        select * 
+        from twitter_user_following_%(postfix)s
+        where twitter_user_id = %(user_id)s
+        ;
+        """ % pre_params
+        params = {
+            'user_id':self.id
+        }
+        results = self.postgres_handle.execute_query(qry, params)
+        if not results:
             return []
         else:
-            return self.following_ids
+            return results[0]['following_ids']
+        
+    @property
+    def following_ids(self):
+        if not self.last_loaded_following_ids:
+            return []
+        return self.get_following_ids_at_certain_time(self.last_loaded_following_ids)
     
     @property
     def following(self):
@@ -58,9 +80,9 @@ class TwitterUser(PostgresBaseModel):
 
     @property
     def following_following_ids(self):
-        return_ids = set(self.following_ids_default)
+        return_ids = set(self.following_ids)
         for following in self.following:
-            for following_following_id in following.following_ids_default:
+            for following_following_id in following.following_ids:
                 return_ids.add(following_following_id)
         return list(return_ids)  
     
@@ -68,20 +90,24 @@ class TwitterUser(PostgresBaseModel):
     def following_and_expired(self):
         return_list = []
         for user in self.following:            
-            if user.should_we_query_this_user:
+            if user.is_expired:
                 return_list.append(user)
         return return_list
     
     @property
-    def should_we_query_this_user(self):
-        return type(self.following_ids) == NoneType and \
+    def is_expired(self):
+        expired = True
+        if self.last_loaded_following_ids and \
+           (datetime.now() - self.last_loaded_following_ids) < self.RELOAD_FOLLOWING_THRESHOLD:
+            expired = False
+        return expired and \
                self.following_count <= self.MAX_FOLLOWING_COUNT and \
                not self.caused_an_error and \
                not self.protected
     
     def get_random_followie_id(self, not_in_this_list=[]):
-        random_index = random.randrange(0, len(self.following_ids_default)) 
-        random_id = self.following_ids_default[random_index]
+        random_index = random.randrange(0, len(self.following_ids)) 
+        random_id = self.following_ids[random_index]
         if random_id in not_in_this_list:
             return self.get_random_followie_id(not_in_this_list)
         else:
@@ -101,7 +127,7 @@ class TwitterUser(PostgresBaseModel):
         #the people self follows follows
         else:
             tried_to_load_these_ids = []
-            for i in range(len(self.following_ids_default)): #give up at some point (this could be anything)
+            for i in range(len(self.following_ids)): #give up at some point (this could be anything)
                 random_following_id = self.get_random_followie_id(tried_to_load_these_ids)
                 print random_following_id
                 random_following = TwitterUser.get_by_id(random_following_id)
@@ -111,38 +137,27 @@ class TwitterUser(PostgresBaseModel):
                 else:
                     tried_to_load_these_ids.append(random_following_id)
                     
-    def get_adjacency_matrix(self, distance=10):
-        
+    def get_graph_info(self, distance=10, min_followers=35):
         unique_followers = set([self.id])
         unique_followies = set(self.following_ids)
         follower_followies_map = {self.id:set(self.following_ids)}
         for following in self.following:
+            if following.followers_count < min_followers:
+                continue
             if following.following_ids and following.id not in follower_followies_map:
                 unique_followers.add(following.id)
                 unique_followies = unique_followies.union(following.following_ids)
                 follower_followies_map[following.id] = set(following.following_ids)
+                
             for following_following in following.following[:distance]:
+                if following_following.followers_count < min_followers:
+                    continue
                 if following_following.following_ids and following_following.id not in follower_followies_map:
                     unique_followers.add(following_following.id)
                     unique_followies = unique_followies.union(following_following.following_ids)
                     follower_followies_map[following_following.id] = set(following_following.following_ids)
-            
-        #unique_followers = list(unique_followers)
-        #unique_followies = list(unique_followies)
-        #gotta be both follower and followie   
-        #unique_user_ids = list(unique_followers.intersection(unique_followies))
-
-        #create return structure
-        adjacency_matrix = []    
-        for follower_id in unique_followers:
-            followie_row = []
-            for followie_id in unique_followies:
-                value = 1 if followie_id in follower_followies_map[follower_id] else 0
-                followie_row.append(value)
-            adjacency_matrix.append(followie_row)
-                
-        #matrix, samples, features
-        return numpy.array(adjacency_matrix), list(unique_followers), list(unique_followies)
+                    
+        return follower_followies_map, list(unique_followers), list(unique_followies)
 
     ##############################################
     ##group related stuff
@@ -184,7 +199,7 @@ class TwitterUser(PostgresBaseModel):
     #def who_to_follow(self, num_users):
         #return_list = []
         #for user_id in self.group_inferred_following(num_users):
-            #if user_id not in self.following_ids_default:
+            #if user_id not in self.following_ids:
                 #return_list.append(TwitterUser.get_by_id(user_id))
         #return return_list
     
@@ -193,7 +208,41 @@ class TwitterUser(PostgresBaseModel):
     ##state changing methods
     ##############################################    
     def save_following_ids(self, following_ids):
-        self.following_ids = list(set(following_ids))
+        pre_params = {
+            'postfix':datetime.now().strftime('%Y_%U'),
+            'user_id':'%(user_id)s',
+            'following_ids':'%(following_ids)s',
+        }
+        insert_sql = """
+        insert into twitter_user_following_%(postfix)s (twitter_user_id, following_ids)
+        values(%(user_id)s, %(following_ids)s);
+        """ % pre_params
+        
+        update_sql = """
+        update twitter_user_following_%(postfix)s 
+        set following_ids = %(following_ids)s
+        where twitter_user_id = %(user_id)s;
+        """ % pre_params
+        
+        select_sql = """
+        select * from twitter_user_following_%(postfix)s
+        where twitter_user_id = %(user_id)s;
+        """ % {
+            'postfix':datetime.now().strftime('%Y_%U'),
+            'user_id':'%(user_id)s',
+        }
+        results = self.postgres_handle.execute_query(select_sql, {'user_id':self.id})
+        if len(results):
+            use_this_sql = update_sql
+        else:
+            use_this_sql = insert_sql
+        
+        params = {
+            'user_id':self.id,
+            'following_ids':following_ids,
+        }
+        self.postgres_handle.execute_query(use_this_sql, params, return_results=False)
+        self.last_loaded_following_ids = datetime.now()
         self.save()    
         
     ##############################################
@@ -219,7 +268,7 @@ class TwitterUser(PostgresBaseModel):
             writer.writerow(properties + ['following_ids'])
             for following in cls.get_by_ids(user.following_following_ids):
                 initial_stuff = [str(following.__dict__.get(x)) for x in properties]
-                following_ids_str = '::'.join(following.following_ids_default)
+                following_ids_str = '::'.join(following.following_ids)
                 writer.writerow(initial_stuff + [following_ids_str])
         finally:
             file_like.close()

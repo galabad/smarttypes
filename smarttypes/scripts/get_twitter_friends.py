@@ -84,14 +84,6 @@ if __name__ == "__main__":
         screen_name = sys.argv[1]
         
     model_user = TwitterUser.by_screen_name(screen_name)
-    if not model_user:
-        TwitterUser.time_context = datetime.now() - timedelta(days=7)
-        model_user = TwitterUser.by_screen_name(screen_name)
-        if not model_user:
-            raise Exception('Cant find %s' % screen_name)
-        else:
-            TwitterUser.time_context = datetime.now()
-    
     if not model_user.credentials:
         raise Exception('%s does not have api credentials.' % screen_name)
     

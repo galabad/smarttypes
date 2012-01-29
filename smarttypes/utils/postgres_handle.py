@@ -1,5 +1,6 @@
 import psycopg2
-
+psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 
 class PostgresHandle(object):
     
@@ -16,7 +17,7 @@ class PostgresHandle(object):
         
         params = params if params else {}
         cursor = self.connection.cursor()
-        if print_qry: print query_string
+        if print_qry: print query_string % params
         cursor.execute(query_string, params)        
         column_names = cursor.description 
         cursor_results = []

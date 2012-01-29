@@ -31,10 +31,10 @@ site_name = 'SmartTypes'
 site_mantra = 'a tool for social discovery'
 default_title = '%s - %s' % (site_name, site_mantra)
 site_description = """
-SmartTypes is platform for social network analysis (SNA). 
-Our aim is quantifying the evolution and influence of niche social networks.
-Our software is open and accessible, think of us as a open lab for SNA exploration!
-Give us a try, sign in with your twitter account, and receive a weekly email highlighting communities, people, and content of interest. 
+SmartTypes is an open platform for social network exploration. 
+Our aim is to model and understand the complex interactions, influence, and evolution of niche social groups.
+Our methods are influenced by biological, ecological, and complexity science.
+Give us a try, sign in with your twitter account and start exploring!
 """
 site_description = site_description.strip()
 

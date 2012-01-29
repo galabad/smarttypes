@@ -4,21 +4,21 @@ import re, traceback
 from webob import Request
 
 urls = [
-    (r'^$', smarttypes.controllers.home),
+    (r'^$', smarttypes.controllers.index),
     
-    (r'sign_in/?$', smarttypes.controllers.sign_in),
-    (r'my_account/?$', smarttypes.controllers.my_account),
-    (r'save_email/?$', smarttypes.controllers.save_email),
+    (r'^sign_in/?$', smarttypes.controllers.sign_in),
+    (r'^my_account/?$', smarttypes.controllers.my_account),
+    (r'^save_email/?$', smarttypes.controllers.save_email),
     
-    (r'blog/?', smarttypes.controllers.blog),
+    (r'^blog/?', smarttypes.controllers.blog),
     
-    (r'user/?$', smarttypes.controllers.user),
-    (r'group/?$', smarttypes.controllers.group),        
+    (r'^social_map/?$', smarttypes.controllers.social_map.index),
+    (r'^social_map/map_data.json$', smarttypes.controllers.social_map.map_data),
+    (r'^social_map/ajax_group/?$', smarttypes.controllers.social_map.ajax_group),
     
-    (r'about/?$', smarttypes.controllers.about),
-    (r'contact/?$', smarttypes.controllers.contact),
+    (r'^contact/?$', smarttypes.controllers.contact),
     
-    (r'static/?', smarttypes.controllers.static),
+    (r'^static/?', smarttypes.controllers.static),
 ]
 
 
