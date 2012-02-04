@@ -18,11 +18,10 @@ import networkx
 
 class GraphReduce(object):
     
-    def __init__(self, follower_followies_map, followers, followies):
+    def __init__(self, follower_followies_map, followers):
         self.follower_followies_map = follower_followies_map
         self.followers = followers
-        self.followies = followies
-        print "followers: %s, followies: %s" % (len(followers), len(followies))
+        print "followers: %s" % len(followers)
         
         self.adjancey_matrix = None
         self.linloglayout_ids = None
@@ -30,17 +29,6 @@ class GraphReduce(object):
         self.linloglayout_clusters = None
         self.linloglayout_cluster_centers = None
         self.linloglayout_similarities = None
-        
-    def mk_adjancey_matrix(self):
-        adjacency_matrix = []    
-        for follower in self.followers:
-            followie_row = []
-            for followie in self.followies:
-                value = 1 if followie in self.follower_followies_map[follower] else 0
-                followie_row.append(value)
-            adjacency_matrix.append(followie_row)
-        self.adjancey_matrix = np.array(adjancey_matrix)
-        return self.adjancey_matrix
         
     def reduce_with_linloglayout(self):
         input_file = open('/home/timmyt/projects/smarttypes/smarttypes/graphreduce/LinLogLayout/st_input_file.txt', 'w')

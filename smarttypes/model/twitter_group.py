@@ -33,7 +33,7 @@ class TwitterGroup(PostgresBaseModel):
         for score, user_id in heapq.nlargest(num_users, score_user_id_tup_list):
             if score:
                 add_this = (score, user_id)
-                if not just_ids: add_this = (score, TwitterUser.get_by_id(user_id))
+                if not just_ids: add_this = (score, TwitterUser.get_by_id(user_id, self.postgres_handle))
                 return_list.append(add_this)
             else:
                 break
@@ -44,11 +44,11 @@ class TwitterGroup(PostgresBaseModel):
     ##class methods
     ##############################################
     @classmethod
-    def all_groups(cls, reduction_id):
-        return cls.get_by_name_value('reduction_id', reduction_id)
+    def all_groups(cls, reduction_id, postgres_handle):
+        return cls.get_by_name_value('reduction_id', reduction_id, postgres_handle)
     
     @classmethod
-    def get_by_index(cls, reduction_id, index):
+    def get_by_index(cls, reduction_id, index, postgres_handle):
         qry = """
         select * 
         from twitter_group
@@ -56,15 +56,15 @@ class TwitterGroup(PostgresBaseModel):
             and index = %(index)s;
         """
         params = {'reduction_id':reduction_id, 'index':index}
-        results = cls.postgres_handle.execute_query(qry, params)
+        results = postgres_handle.execute_query(qry, params)
         if results:
-            return cls(**results[0])
+            return cls(postgres_handle=postgres_handle, **results[0])
         else:
             return None
     
     @classmethod
-    def create_group(cls, reduction_id, index, user_ids, scores):
-        twitter_group = cls()
+    def create_group(cls, reduction_id, index, user_ids, scores, postgres_handle):
+        twitter_group = cls(postgres_handle=postgres_handle)
         twitter_group.reduction_id = reduction_id
         twitter_group.index = index
         twitter_group.user_ids = user_ids
@@ -73,12 +73,12 @@ class TwitterGroup(PostgresBaseModel):
         return twitter_group
         
     @classmethod
-    def mk_tag_clouds(cls, reduction_id):
+    def mk_tag_clouds(cls, reduction_id, postgres_handle):
         
         print "starting group_wordcounts loop"
         group_wordcounts = {}
         all_words = set()
-        for group in cls.all_groups(reduction_id):
+        for group in cls.all_groups(reduction_id, postgres_handle):
             group_wordcounts[group.index] = (group, collections.defaultdict(int))
             for score, user in group.top_users(num_users=25):
                 if not user.description:

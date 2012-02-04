@@ -8,13 +8,12 @@ class PostgresHandle(object):
         self.connection_string = connection_string      
         
     @property
-    def connection(self):        
+    def connection(self):
         if not '_connection' in self.__dict__:
             self._connection = psycopg2.connect(self.connection_string)
         return self._connection
         
     def execute_query(self, query_string, params=None, return_results=True, print_qry=False):
-        
         params = params if params else {}
         cursor = self.connection.cursor()
         if print_qry: print query_string % params

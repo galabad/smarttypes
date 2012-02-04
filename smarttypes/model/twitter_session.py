@@ -23,15 +23,16 @@ class TwitterSession(PostgresBaseModel):
         from smarttypes.model.twitter_credentials import TwitterCredentials
         if not self.access_key:
             return None
-        return TwitterCredentials.get_by_access_key(self.access_key)
+        return TwitterCredentials.get_by_access_key(self.access_key, self.postgres_handle)
     
     @classmethod
-    def create(cls, request_key, request_secret):
-        return cls(request_key=request_key, request_secret=request_secret).save()
+    def create(cls, request_key, request_secret, postgres_handle):
+        return cls(postgres_handle=postgres_handle, 
+                   request_key=request_key, request_secret=request_secret).save()
 
     @classmethod
-    def get_by_request_key(cls, request_key):
-        results = cls.get_by_name_value('request_key', request_key)
+    def get_by_request_key(cls, request_key, postgres_handle):
+        results = cls.get_by_name_value('request_key', request_key, postgres_handle)
         if results:
             return results[0]
         else:

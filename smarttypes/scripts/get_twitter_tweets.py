@@ -3,9 +3,7 @@ import smarttypes, sys
 from smarttypes.config import *
 
 from smarttypes.utils.postgres_handle import PostgresHandle
-from smarttypes.model.postgres_base_model import PostgresBaseModel
 postgres_handle = PostgresHandle(smarttypes.connection_string)
-PostgresBaseModel.postgres_handle = postgres_handle
 
 from smarttypes.model.twitter_user import TwitterUser
 from smarttypes.model.twitter_tweet import TwitterTweet
@@ -40,7 +38,7 @@ if __name__ == "__main__":
     else:
         screen_name = sys.argv[1]
         
-    twitter_user = TwitterUser.by_screen_name(screen_name)
+    twitter_user = TwitterUser.by_screen_name(screen_name, postgres_handle)
     if not twitter_user.credentials:
         raise Exception('%s does not have api credentials.' % screen_name)
     

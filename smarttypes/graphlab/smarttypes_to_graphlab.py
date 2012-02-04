@@ -81,7 +81,7 @@ if __name__ == "__main__":
     args_dict = eval(sys.argv[1] if len(sys.argv) > 1 else "{'screen_name':'SmartTypes'}")
     screen_name = args_dict['screen_name']
 
-    twitter_user = TwitterUser.by_screen_name(screen_name)
+    twitter_user = TwitterUser.by_screen_name(screen_name, postgres_handle)
     
     following_dict = {}
     following_dict[twitter_user.twitter_id] = twitter_user.following_ids

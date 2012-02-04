@@ -1,18 +1,18 @@
 
 var global_group_idx = 0;
 
-var start_page = function(num_groups){
+var start_page = function(reduction_id, num_groups){
 
-    var coord_scale = d3.scale.linear().domain([0,1]).range([10,400]);
+    var coord_scale = d3.scale.linear().domain([0,1]).range([10,440]);
     var color_scale = d3.scale.linear().domain([0,num_groups])
         .interpolate(d3.interpolateRgb)
         .range(["#cccccc", "#000000"]);
     
     var svg = d3.select("#map_data").append("svg")
-        .attr("width", 475)
-        .attr("height", 425);
+        .attr("width", 450)
+        .attr("height", 450);
         
-    d3.json('/social_map/map_data.json', function(data){
+    d3.json('/social_map/map_data.json?reduction_id='+reduction_id, function(data){
         //console.log(data);
         svg.selectAll("circle")
             .data(data)
@@ -24,7 +24,8 @@ var start_page = function(num_groups){
             .style("fill", function(d, i) { return color_scale(d.group_index); })
             .style("cursor", "pointer")
             .on("click", function(d,i) { show_cluster(d.group_index); });
-            
+        
+        $('div#spinner').hide();
         show_cluster(global_group_idx);
     });
       

@@ -40,7 +40,7 @@
 
         <div style="float:right;text-align:right;">
             <div style="margin-top:68px;">
-                <a href="/blog" class="${'active' if active_tab == 'blog' else ''}">Blog</a>
+                <a href="/social_map" class="${'active' if active_tab == 'social_map' else ''}">Social maps</a>
                     <span style="padding:0 5px;color:#cccccc; ">|</span>
                 <a py:if="not logged_in_user" href="/sign_in" class="${'active' if active_tab == 'sign_in' else ''}">Sign in w/ twitter</a>
                 <a py:if="logged_in_user" href="/my_account" class="${'active' if active_tab == 'my_account' else ''}">${logged_in_user.screen_name}</a>
@@ -63,7 +63,8 @@
         <table style="width:100%;">
             <tr>          
                 <td style="width:33%;text-align:left;">
-                    <a href="http://groups.google.com/group/smarttypes" target="_blank">Mailing list</a>
+                    <a href="/blog" class="${'active' if active_tab == 'blog' else ''}">Blog</a>
+                    <!--<a href="http://groups.google.com/group/smarttypes" target="_blank">Mailing list</a>-->
                 </td>
 
                 <td style="width:33%;text-align:center;">

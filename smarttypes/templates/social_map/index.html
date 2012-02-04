@@ -15,13 +15,15 @@
     <script type="text/javascript" >
         $(document).ready(function(){
             var num_groups = ${num_groups};
-            start_page(num_groups);
+            var reduction_id = ${reduction.id};
+            start_page(reduction_id, num_groups);
         });
     </script>
-
+    
 </head>                    
 
 <body>
+
     <div style="width:900px; margin:0 auto;">
         <div style="float:left; width:350px;margin:0;padding:0;">
             <h1 style="margin:0 0 15px 0;font-weight:normal;">
@@ -32,6 +34,9 @@
         </div>
         
         <div id="map_data" style="float:left; width:500px;margin:0;padding:0;">
+            <div id="spinner" style="margin:200px auto 0 200px;">
+                <img style="padding:0;" src="/static/images/spinner.gif" alt="spinner"/>
+            </div>
             &nbsp;
         </div>
         <div class="clear"></div>

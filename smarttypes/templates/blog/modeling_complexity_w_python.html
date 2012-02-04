@@ -36,13 +36,7 @@ The journey then, is the point i guess.
 
 <p>
 Specifically, i want to show how <a href="http://en.wikipedia.org/wiki/Graphical_model">graphical models</a> can help us understand complex phenomena.
-After highlighting some high-level ideas/philosophies, i will detail a real-world implementation using 
-<a href="http://radimrehurek.com/gensim/index.html">gensim (an efficient/distributed python LDA implementation)</a>. 
-</p>
-
-<p>
-I hope to give a new rendition of this talk @ <a href="http://us.pycon.org/2012/">PyCon 2012</a> in Santa Clara, CA.
-Please shoot me an email @ hello@smarttypes.org w/ any questions, thoughts, scolding criticism.
+In this post we will highlight some high-level ideas, our following post will detail the code + implementation. 
 </p>
 
 <h2>Everything is related</h2>
@@ -50,8 +44,7 @@ Please shoot me an email @ hello@smarttypes.org w/ any questions, thoughts, scol
 <p>
 The universe is complex.
 Everything around us (our weather, milk, yards, economy, etc...) operate under a veil of complexity.
-We have a long history of trying to tame complexity.
-This has been the goal of reductionist science for thousands of years.
+Humans have a long history of trying to tame complexity.
 </p>
 
 <blockquote>
@@ -73,15 +66,15 @@ and
 
 <p>
 Arguably, <a href="http://en.wikipedia.org/wiki/Butterfly_effect">the butterfly effect</a> is complexity science's crowning achievement.
-Show me another <a href="http://en.wikipedia.org/wiki/The_Butterfly_Effect">complexity inspired movie starring, man of science, Ashton Kutcher</a>
+Show me another <a href="http://en.wikipedia.org/wiki/The_Butterfly_Effect">complexity inspired movie starring man of science Ashton Kutcher</a>
 and i'll rethink that claim.
 </p>
 
 <p>
 The butterfly effect is a simple idea.
-A butterfly fluttering her wings in Casablanca, Morocco can effect the weather in Cleveland, Ohio.
+A butterfly fluttering her wings in Casablanca can effect the weather in Cleveland.
 This is an example used to make a larger point.
-Things are related in weird ways.
+Things are related in weird/crazy ways.
 </p>
 
 <p>
@@ -89,7 +82,7 @@ Perhaps everything is related!
 </p>
 
 <p>
-If that doesn't melt your mind, <a href="http://en.wikipedia.org/wiki/Determinism">read what wikipedia has to say about determinism</a>.
+<a href="http://en.wikipedia.org/wiki/Determinism">Here's what wikipedia has to say on the matter</a>.
 From August 23 2011:
 </p>
 
@@ -122,7 +115,7 @@ In short, we need to embrace uncertainty!
 </p>
 
 <p>
-[horn_blows] Enter probability!
+[triumphant_horn_blows] Enter probability!
 </p>
 
 <blockquote>
@@ -149,7 +142,7 @@ I'm fond of this image.
 <p>
 Try to imagine this picture as a
 <a href="http://en.wikipedia.org/wiki/Joint_probability_distribution">joint probability distribution</a>
-of two related random variables (two variables because one axis holds the probability measure).
+of 3 dimensional complex system.
 </p>
 
 <p style="text-align:center;">
@@ -157,18 +150,14 @@ of two related random variables (two variables because one axis holds the probab
 </p>
 
 <p>
-Now try to imagine a joint probability distribution with 10, 100, or 1,000 random variables. 
-</p>
-
-<p>
-Now you understand why we need computers.
+Now try to imagine a joint probability distribution with 10, 100, or 1,000 dimensions.
 </p>
 
 <h2>Predicting the actions of humans</h2>
 
 <p>
-The stock market is perhaps the best forum for complexity analysis.
-The stakes are high, and slight advantages equate to big $$$$.
+The stock market is a perfect forum for complexity analysis.
+The game is simple and straightforward, predict the future better than your opponents, win a lot of money. 
 </p>
 
 <!--<p>
@@ -188,21 +177,20 @@ The stakes are high, and slight advantages equate to big $$$$.
 <p>
 This is the paper that got me interested in social network analysis:
 <a href="http://arxiv.org/abs/1010.3003">Twitter mood predicts the stock market</a>.
-You may have seen this. If not, you may want to read that again.
-</p>
-
-<p>
-Derwent Capital Markets, an investment firm in London, built a $40 million hedge fund around the idea.
-After its first full month of trading in July, the fund out-performed the Standard &amp; Poor's 500 for that month, returning 1.85% while the index fell 2.2%.
 </p>
 
 <p>
 No small feat!
 The financial industry spends a lot of money on methods to predict the future.
 A lot of money is really an understatement.
-How/why is twitter good at predicting the market?
+How/why would twitter be good at predicting the market?
 </p>
 
+<blockquote>
+<p>
+"Think of Twitter as a network of human sensors." -- Rick Lawrence, head of IBM's Machine Learning Group
+</p>
+</blockquote>
 
 <h2>Human social networks</h2>
 
@@ -241,7 +229,7 @@ Here are a few of many examples:
 </p>
 
 <p>
-The following is from 
+From 
 <a href="http://online.wsj.com/article_email/SB10001424052970204138204576598942105167646-lMyQjAxMTAxMDAwMzEwNDMyWj.html">
 a WSJ article on Virginia's magnitude 5.8 earthquake that hit last August
 </a>: 
@@ -260,7 +248,7 @@ As Twitter's message traffic has grown explosively, so has the scientific appeti
 </blockquote>
 
 <p>
-This is from <a href="https://www.fbo.gov/index?s=opportunity&amp;mode=form&amp;id=6ef12558b44258382452fcf02942396a&amp;tab=core&amp;_cview=0">
+From <a href="https://www.fbo.gov/index?s=opportunity&amp;mode=form&amp;id=6ef12558b44258382452fcf02942396a&amp;tab=core&amp;_cview=0">
 the DARPA Social Media in Strategic Communication RFP
 </a>:
 </p>
@@ -301,7 +289,7 @@ It's not just about listening, it's also about influence!
 <p>
 OK, that sets the stage for implementation.
 <a href="/blog/modeling_complexity_w_python_2">Our next post</a> 
-will move from crazy philosophy to actual code.
+will move from crazy theory to actual code.
 </p>
 
 

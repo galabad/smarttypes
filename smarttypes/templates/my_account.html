@@ -13,24 +13,24 @@
 
     <div style="text-align:center;">
         <p>
-            We're pulling your data, we'll send you an email when it's ready.
+            Creating a social map takes a lot of storage and cycles, it's kind of expensive.
+            Because of this we need to be choosy about who's data we pull, at least in our wee infancy.
+            An email has been sent to our team notifying them of your interest.
+            Please provide your email address so we can contact you directly if approved.
         </p>
         
-        <p>
-            <a href="https://github.com/smarttypes/SmartTypes" target="_blank">Check out our github repo</a> 
-            to learn more about how we do what we do.
-        </p>
-        
-        <form name="input" action="/save_email" method="post" style="margin:20px 0;">
-            <?python
-                email_value = credentials.email if credentials else ''
-                email_label = 'Email:' if email_value else "Email?"
-                email_submit = 'Update' if email_value else 'Add'
-            ?>
-            <span class="label">${email_label}</span>
-            <input type="text" style="text-align:center;" class="text" name="email" value="${email_value}" />
-            <input type="submit" class="submit" value="${email_submit}" />
-        </form> 
+        <div style="padding:0 0 0 0;">
+            <form name="input" action="/save_email" method="post" style="margin:20px 0;">
+                <?python
+                    email_value = credentials.email if credentials else ''
+                    email_label = 'Email:' if email_value else "Email?"
+                    email_submit = 'Update' if email_value else 'Add'
+                ?>
+                <span class="label">${email_label}</span>
+                <input type="text" style="text-align:center;" class="text" name="email" value="${email_value}" />
+                <input type="submit" class="submit" value="${email_submit}" />
+            </form> 
+        </div>
     </div>
 
 </body>                                    

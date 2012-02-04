@@ -3,9 +3,7 @@ import smarttypes, sys
 from smarttypes.config import *
 
 from smarttypes.utils.postgres_handle import PostgresHandle
-from smarttypes.model.postgres_base_model import PostgresBaseModel
 postgres_handle = PostgresHandle(smarttypes.connection_string)
-PostgresBaseModel.postgres_handle = postgres_handle
 
 import tweepy
 from tweepy import TweepError
@@ -35,12 +33,12 @@ def load_user_and_the_people_they_follow(api_handle, screen_name):
         print "Got a TweepError: %s." % ex  
         if str(ex) == "Not found":
             print "Setting caused_an_error for %s " % screen_name
-            model_user = TwitterUser.by_screen_name(screen_name)
+            model_user = TwitterUser.by_screen_name(screen_name, postgres_handle)
             model_user.caused_an_error = datetime.now()
             model_user.save()
             return model_user
     
-    model_user = TwitterUser.upsert_from_api_user(api_user)
+    model_user = TwitterUser.upsert_from_api_user(api_user, postgres_handle)
     postgres_handle.connection.commit()
     
     if api_user.protected:
@@ -69,7 +67,7 @@ def load_user_and_the_people_they_follow(api_handle, screen_name):
     for api_following in api_following_list:
         if api_following.protected:
             continue 
-        model_following = TwitterUser.upsert_from_api_user(api_following)
+        model_following = TwitterUser.upsert_from_api_user(api_following, postgres_handle)
         following_ids.append(model_following.id)
     model_user.save_following_ids(following_ids)
     postgres_handle.connection.commit()
@@ -83,9 +81,9 @@ if __name__ == "__main__":
     else:
         screen_name = sys.argv[1]
         
-    model_user = TwitterUser.by_screen_name(screen_name)
+    model_user = TwitterUser.by_screen_name(screen_name, postgres_handle)
     if not model_user.credentials:
-        raise Exception('%s does not have api credentials.' % screen_name)
+        raise Exception('%s does not have api credentials!' % screen_name)
     
     api_handle = model_user.credentials.api_handle
     

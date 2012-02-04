@@ -18,9 +18,9 @@ class TwitterTweet(PostgresBaseModel):
     }
     
     @classmethod
-    def upsert_from_api_tweet(cls, api_tweet):
+    def upsert_from_api_tweet(cls, api_tweet, postgres_handle):
             
-        model_tweet = cls.get_by_id(api_tweet.id_str)
+        model_tweet = cls.get_by_id(api_tweet.id_str, postgres_handle)
         if not model_tweet:
             properties = {
                 'id':api_tweet.id_str,
@@ -28,13 +28,12 @@ class TwitterTweet(PostgresBaseModel):
                 'retweet_count':int(str(api_tweet.retweet_count).replace('+', '')),
                 'tweet_text':api_tweet.text,
             }
-            model_tweet = cls(**properties)
+            model_tweet = cls(postgres_handle=postgres_handle, **properties)
             try:
                 model_tweet.save()
             except Exception, ex:
                 #was it inserted by another process?
-                
-                model_tweet = cls.get_by_id(api_tweet.id_str)
+                model_tweet = cls.get_by_id(api_tweet.id_str, postgres_handle)
                 if not model_tweet:
                     raise Exception('Not sure whats happening?')
             

@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 class PostgresBaseModel(object):
     
     def __init__(self, **kwargs):
+        if 'postgres_handle' not in kwargs:
+            raise Exception('Cant initialize a PostgresBaseModel object without a postgres_handle.')
         self.__dict__.update(kwargs)
         
     @property
@@ -36,7 +38,7 @@ class PostgresBaseModel(object):
     
     def save(self):     
         key_value = getattr(self, self.table_key, None)
-        if not self.get_by_id(key_value):
+        if not self.get_by_id(key_value, self.postgres_handle):
             qry = self.insert_sql_str        
         else:
             qry = self.update_sql_str
@@ -50,7 +52,7 @@ class PostgresBaseModel(object):
         return self
     
     @classmethod
-    def get_by_id(cls, key_value):
+    def get_by_id(cls, key_value, postgres_handle):
         qry = """
         select * 
         from %(table_name)s
@@ -59,14 +61,14 @@ class PostgresBaseModel(object):
         params = {'table_name':cls.table_name,
                          'key_name':cls.table_key,
                          'key_value':'%(key_value)s'}
-        results = cls.postgres_handle.execute_query(qry % params, {'key_value':key_value}, print_qry=False)
+        results = postgres_handle.execute_query(qry % params, {'key_value':key_value}, print_qry=False)
         if len(results) == 1:
-            return cls(**results[0])
+            return cls(postgres_handle=postgres_handle, **results[0])
         else:
             return None
         
     @classmethod
-    def get_by_ids(cls, key_values):
+    def get_by_ids(cls, key_values, postgres_handle):
         if not key_values: return []
         qry = """
         select * 
@@ -76,11 +78,11 @@ class PostgresBaseModel(object):
         params = {'table_name':cls.table_name,
                          'key_name':cls.table_key,
                          'key_values':'%(key_values)s'}
-        results = cls.postgres_handle.execute_query(qry % params, {'key_values':tuple(key_values)})
-        return [cls(**x) for x in results]
+        results = postgres_handle.execute_query(qry % params, {'key_values':tuple(key_values)})
+        return [cls(postgres_handle=postgres_handle, **x) for x in results]
     
     @classmethod
-    def get_by_name_value(cls, name, value):
+    def get_by_name_value(cls, name, value, postgres_handle):
         qry = """
         select * 
         from %(table_name)s
@@ -89,7 +91,7 @@ class PostgresBaseModel(object):
         params = {'table_name':cls.table_name,
                          'name':name,
                          'value':'%(value)s'}
-        results = cls.postgres_handle.execute_query(qry % params, {'value':value})
-        return [cls(**x) for x in results]
+        results = postgres_handle.execute_query(qry % params, {'value':value})
+        return [cls(postgres_handle=postgres_handle, **x) for x in results]
     
     

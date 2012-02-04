@@ -44,7 +44,7 @@ class TwitterUser(PostgresBaseModel):
 
     @property
     def credentials(self):
-        return model.twitter_credentials.TwitterCredentials.get_by_twitter_id(self.id)
+        return model.twitter_credentials.TwitterCredentials.get_by_twitter_id(self.id, self.postgres_handle)
     
     def get_following_ids_at_certain_time(self, at_this_datetime):
         if not at_this_datetime:
@@ -70,13 +70,16 @@ class TwitterUser(PostgresBaseModel):
         
     @property
     def following_ids(self):
-        if not self.last_loaded_following_ids:
-            return []
-        return self.get_following_ids_at_certain_time(self.last_loaded_following_ids)
+        if not '_following_ids' in self.__dict__:
+            if not self.last_loaded_following_ids:
+                self._following_ids = []
+            else:
+                self._following_ids = self.get_following_ids_at_certain_time(self.last_loaded_following_ids)
+        return self._following_ids
     
     @property
     def following(self):
-        return self.get_by_ids(self.following_ids)
+        return self.get_by_ids(self.following_ids, self.postgres_handle)
 
     @property
     def following_following_ids(self):
@@ -118,7 +121,6 @@ class TwitterUser(PostgresBaseModel):
         keep in mind that 'loading' a user means storing all their connections
         we try to load self, the people self follows, and the people self follows follows
         """
-        
         #the people self follows
         following_and_expired_list = self.following_and_expired
         if following_and_expired_list:
@@ -130,34 +132,29 @@ class TwitterUser(PostgresBaseModel):
             for i in range(len(self.following_ids)): #give up at some point (this could be anything)
                 random_following_id = self.get_random_followie_id(tried_to_load_these_ids)
                 print random_following_id
-                random_following = TwitterUser.get_by_id(random_following_id)
+                random_following = TwitterUser.get_by_id(random_following_id, self.postgres_handle)
                 random_following_following_and_expired_list = random_following.following_and_expired
                 if random_following_following_and_expired_list:
                     return random_following_following_and_expired_list[0]
                 else:
                     tried_to_load_these_ids.append(random_following_id)
                     
-    def get_graph_info(self, distance=10, min_followers=35):
+    def get_graph_info(self, distance=100, min_followers=35):
         unique_followers = set([self.id])
-        unique_followies = set(self.following_ids)
         follower_followies_map = {self.id:set(self.following_ids)}
         for following in self.following:
             if following.followers_count < min_followers:
                 continue
-            if following.following_ids and following.id not in follower_followies_map:
+            if following.following_ids and following.id not in unique_followers:
                 unique_followers.add(following.id)
-                unique_followies = unique_followies.union(following.following_ids)
                 follower_followies_map[following.id] = set(following.following_ids)
-                
             for following_following in following.following[:distance]:
                 if following_following.followers_count < min_followers:
                     continue
-                if following_following.following_ids and following_following.id not in follower_followies_map:
+                if following_following.following_ids and following_following.id not in unique_followers:
                     unique_followers.add(following_following.id)
-                    unique_followies = unique_followies.union(following_following.following_ids)
                     follower_followies_map[following_following.id] = set(following_following.following_ids)
-                    
-        return follower_followies_map, list(unique_followers), list(unique_followies)
+        return follower_followies_map, list(unique_followers)
 
     ##############################################
     ##group related stuff
@@ -168,40 +165,11 @@ class TwitterUser(PostgresBaseModel):
         i = 0
         for score, group_id in sorted(self.scores_groups, reverse=True):
             if i <= num_groups and score > .001:
-                return_list.append((score, TwitterGroup.get_by_index(group_id)))
+                return_list.append((score, TwitterGroup.get_by_index(group_id, self.postgres_handle)))
             else:
                 break
             i += 1
         return return_list
-    
-    
-    
-    
-    #def group_inferred_following(self, num_users, just_ids=True):
-        #from smarttypes.model.twitter_group import TwitterGroup
-        #user_score_map = {}
-        #for following_group_score, group_index in self.following_groups:
-            #for following_user_score, user_id in TwitterGroup.get_by_index(group_index).following:
-                #if user_id not in user_score_map:
-                    #user_score_map[user_id] = following_group_score * following_user_score
-                #else:
-                    #user_score_map[user_id] += following_group_score * following_user_score
-        
-        #return_list = []
-        #score_user_list = [(y,x) for x,y in user_score_map.items()]
-        #for score, user_id in heapq.nlargest(num_users, score_user_list):
-            #add_this = user_id
-            #if not just_ids:
-                #add_this = TwitterUser.get_by_id(user_id)
-            #return_list.append(add_this)
-        #return return_list
-        
-    #def who_to_follow(self, num_users):
-        #return_list = []
-        #for user_id in self.group_inferred_following(num_users):
-            #if user_id not in self.following_ids:
-                #return_list.append(TwitterUser.get_by_id(user_id))
-        #return return_list
     
     
     ##############################################
@@ -249,16 +217,16 @@ class TwitterUser(PostgresBaseModel):
     ##class methods
     ##############################################    
     @classmethod
-    def by_screen_name(cls, screen_name):
-        results = cls.get_by_name_value('screen_name', screen_name)
+    def by_screen_name(cls, screen_name, postgres_handle):
+        results = cls.get_by_name_value('screen_name', screen_name, postgres_handle)
         if results:
             return results[0]
         else:
             return None
         
     @classmethod
-    def mk_following_following_csv(cls, screen_name, file_like, ):
-        user = cls.by_screen_name(screen_name)
+    def mk_following_following_csv(cls, screen_name, file_like, postgres_handle):
+        user = cls.by_screen_name(screen_name, postgres_handle)
         properties = copy(cls.table_columns)
         properties[0:0] = ['createddate', 'modifieddate']
         properties.remove('caused_an_error')
@@ -266,7 +234,7 @@ class TwitterUser(PostgresBaseModel):
         try:
             writer = csv.writer(file_like)
             writer.writerow(properties + ['following_ids'])
-            for following in cls.get_by_ids(user.following_following_ids):
+            for following in cls.get_by_ids(user.following_following_ids, postgres_handle):
                 initial_stuff = [str(following.__dict__.get(x)) for x in properties]
                 following_ids_str = '::'.join(following.following_ids)
                 writer.writerow(initial_stuff + [following_ids_str])
@@ -274,14 +242,14 @@ class TwitterUser(PostgresBaseModel):
             file_like.close()
         
     @classmethod
-    def upsert_from_api_user(cls, api_user):
+    def upsert_from_api_user(cls, api_user, postgres_handle):
         if api_user.protected == None:
             api_user.protected = False
 
         #import pprint
         #print pprint.pprint(api_user.__dict__)
             
-        model_user = cls.get_by_id(api_user.id_str)
+        model_user = cls.get_by_id(api_user.id_str, postgres_handle)
         if model_user:
             model_user.screen_name = api_user.screen_name
             model_user.protected = api_user.protected
@@ -315,7 +283,7 @@ class TwitterUser(PostgresBaseModel):
                 'statuses_count':api_user.statuses_count,
                 'favourites_count':api_user.favourites_count,
             }
-            model_user = cls(**properties)
+            model_user = cls(postgres_handle=postgres_handle, **properties)
         model_user.save()
         return model_user
         

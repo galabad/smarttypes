@@ -1,5 +1,4 @@
 
-from smarttypes.utils.postgres_web_decorator import postgres_web_decorator
 from smarttypes.utils.exceptions import RedirectException
 from smarttypes.utils import validation_utils 
 from genshi.core import Markup
@@ -7,35 +6,52 @@ from genshi import HTML
 from smarttypes.model.twitter_group import TwitterGroup
 from smarttypes.model.twitter_user import TwitterUser
 from smarttypes.model.twitter_reduction import TwitterReduction
+from smarttypes.model.twitter_credentials import TwitterCredentials
 import numpy as np
 
-@postgres_web_decorator()
-def index(req, session):
-    root_user = TwitterUser.by_screen_name('SmartTypes')
-    reduction = TwitterReduction.get_latest_reduction(root_user.id)    
+ 
+def index(req, session, postgres_handle):
+    root_user = None
+    if 'user_id' in req.params:
+        root_user = TwitterUser.get_by_id(req.params['user_id'], postgres_handle)
+    if not root_user:
+        root_user = TwitterUser.by_screen_name('SmartTypes', postgres_handle)
+    reduction = TwitterReduction.get_latest_reduction(root_user.id, postgres_handle)
+    if not reduction:
+        root_user = TwitterUser.by_screen_name('SmartTypes', postgres_handle)
+        reduction = TwitterReduction.get_latest_reduction(root_user.id, postgres_handle)
     return {
+        'active_tab':'social_map',
         'template_path':'social_map/index.html',
         'root_user':root_user,
-        'num_groups':len(TwitterGroup.all_groups(reduction.id)),
+        'reduction':reduction,
+        'num_groups':len(TwitterGroup.all_groups(reduction.id, postgres_handle)),
     }
 
-@postgres_web_decorator()
-def map_data(req, session):
-    root_user = TwitterUser.by_screen_name('SmartTypes')
-    reduction = TwitterReduction.get_latest_reduction(root_user.id)
+ 
+def map_data(req, session, postgres_handle):
+    reduction = None
+    if 'reduction_id' in req.params:
+        try: 
+            reduction_id = int(req.params['reduction_id'])
+        except ValueError: 
+            reduction_id = 0
+        reduction = TwitterReduction.get_by_id(reduction_id, postgres_handle)
+        
+        
     return {
         'content_type':'application/json',
-        'json':reduction.get_details()
+        'json':reduction.get_details() if reduction else []
     }
 
 #todo: return entire page for the search engines
-@postgres_web_decorator()
-def ajax_group(req, session):
+ 
+def ajax_group(req, session, postgres_handle):
     if 'group_index' in req.params:
-        root_user = TwitterUser.by_screen_name('SmartTypes')
-        reduction = TwitterReduction.get_latest_reduction(root_user.id)
+        root_user = TwitterUser.by_screen_name('SmartTypes', postgres_handle)
+        reduction = TwitterReduction.get_latest_reduction(root_user.id, postgres_handle)
         group_index = int(req.params['group_index'])
-        twitter_group = TwitterGroup.get_by_index(reduction.id, group_index)
+        twitter_group = TwitterGroup.get_by_index(reduction.id, group_index, postgres_handle)
     else:
         twitter_group = None
     return {

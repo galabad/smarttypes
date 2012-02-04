@@ -25,7 +25,8 @@ class WebResponse(object):
         #Note that you'll have to detect Internet Explorer (and other browsers that don't understand XHTML) 
         #on the server and change the content type to text/html - if presented with the application/xhtml+xml 
         #content type IE will prompt the user to download the file;
-        self.content_type = response_dict.get('content_type', 'application/xhtml+xml')
+        #self.content_type = response_dict.get('content_type', 'application/xhtml+xml')
+        self.content_type = response_dict.get('content_type', 'text/html')
         self.cookies = response_dict.get('cookies', [])
         self.webob_response = webob.Response()
         self.session = response_dict.get('session') or session 
@@ -70,8 +71,8 @@ class WebResponse(object):
             
         template = loader.load(self.response_dict['template_path'])
         template_with_dict = template.generate(**self.response_dict)
-        #response_str = template_with_dict.render(self.content_type.split('/')[1])
-        response_str = template_with_dict.render('xhtml')
+        response_str = template_with_dict.render(self.content_type.split('/')[1])
+        #response_str = template_with_dict.render('xhtml')
         
         return [response_str]
     

@@ -29,43 +29,38 @@ class TwitterCredentials(PostgresBaseModel):
     
     @property
     def twitter_user(self):
-        if not self.twitter_id or not model.twitter_user.TwitterUser.get_by_id(self.twitter_id):
-            user = model.twitter_user.TwitterUser.upsert_from_api_user(self.api_handle.me())
-            self.twitter_id = user.id
-            self.save()
-            return user
-        else:
-            return model.twitter_user.TwitterUser.get_by_id(self.twitter_id)
+        if not self.twitter_id:
+            return None 
+        return model.twitter_user.TwitterUser.get_by_id(self.twitter_id, self.postgres_handle)
 
     @classmethod
-    def create(cls, access_key, access_secret):
-        return cls(access_key=access_key, access_secret=access_secret).save()
+    def create(cls, access_key, access_secret, postgres_handle):
+        return cls(postgres_handle=postgres_handle, 
+                   access_key=access_key, access_secret=access_secret).save()
     
     @classmethod
-    def get_by_access_key(cls, access_key):
-        results = cls.get_by_name_value('access_key', access_key)
+    def get_by_access_key(cls, access_key, postgres_handle):
+        results = cls.get_by_name_value('access_key', access_key, postgres_handle)
         if results:
             return results[0]
         else:
             return None
         
     @classmethod
-    def get_by_twitter_id(cls, twitter_id):
-        results = cls.get_by_name_value('twitter_id', twitter_id)
+    def get_by_twitter_id(cls, twitter_id, postgres_handle):
+        results = cls.get_by_name_value('twitter_id', twitter_id, postgres_handle)
         if results:
             return results[0]
         else:
             return None        
         
     @classmethod
-    def get_all(cls):
+    def get_all(cls, postgres_handle):
         qry = """
-        select * 
-        from %(table_name)s;
+        select * from twitter_credentials;
         """
-        params = {'table_name':cls.table_name}
-        results = cls.postgres_handle.execute_query(qry % params)
-        return [cls(**x) for x in results]
+        results = postgres_handle.execute_query(qry)
+        return [cls(postgres_handle=postgres_handle, **x) for x in results]
         
     
 

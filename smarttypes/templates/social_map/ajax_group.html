@@ -4,7 +4,7 @@
 <div xmlns:py="http://genshi.edgewall.org/">
     <div py:if="twitter_group">
     <p style="margin:0 0 0 0;">Group info: ${len(twitter_group.user_ids)} members</p>
-    <p style="margin:0 0 0 10px;">${', '.join(twitter_group.tag_cloud)}</p>
+    <p style="margin:0 0 15px 10px;">${', '.join(twitter_group.tag_cloud)}</p>
     <ul style="list-style:none; height:280px; overflow:scroll; overflow-x:hidden; padding:10px 20px 10px 0;">
         <li style="padding:6px 10px;" class="twitter_user" py:for="score, user in twitter_group.top_users()">
             <div>

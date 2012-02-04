@@ -235,12 +235,11 @@ public class LinLogLayout {
 		// see class MinimizerBarnesHut for a description of the parameters;
 		// for classical "nice" layout (uniformly distributed nodes), use
 		//new MinimizerBarnesHut(nodes, edges, -1.0, 2.0, 0.05).minimizeEnergy(nodeToPosition, 100);
-		new MinimizerBarnesHut(nodes, edges, 0.0, 1.0, 0.05).minimizeEnergy(nodeToPosition, 200);
+		new MinimizerBarnesHut(nodes, edges, 0.0, 1.0, 0.05).minimizeEnergy(nodeToPosition, 100);
         // see class OptimizerModularity for a description of the parameters
-        Map<Node,Integer> nodeToCluster = 
-            new OptimizerModularity().execute(nodes, edges, false);
+        Map<Node,Integer> nodeToCluster = new OptimizerModularity().execute(nodes, edges, false);
 		writePositions(nodeToPosition, nodeToCluster, args[2]);
-		(new GraphFrame(nodeToPosition, nodeToCluster)).setVisible(true);
+		//(new GraphFrame(nodeToPosition, nodeToCluster)).setVisible(true);
 	}
 
 }

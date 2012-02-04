@@ -31,7 +31,7 @@ class TwitterReduction(PostgresBaseModel):
     
     def get_groups(self):
         from smarttypes.model.twitter_group import TwitterGroup
-        return TwitterGroup.get_by_name_value('reduction_id', self.id)
+        return TwitterGroup.get_by_name_value('reduction_id', self.id, self.postgres_handle)
     
     def get_details(self):
         details = []
@@ -49,7 +49,7 @@ class TwitterReduction(PostgresBaseModel):
                 })
         return details
     
-    def save_group_info(self):
+    def save_group_info(self, postgres_handle):
         group_indices = []
         group_scores = []
         groups = self.get_groups()
@@ -71,7 +71,7 @@ class TwitterReduction(PostgresBaseModel):
         self.save()
     
     @classmethod
-    def get_latest_reduction(cls, root_user_id):
+    def get_latest_reduction(cls, root_user_id, postgres_handle):
         qry = """
         select * 
         from twitter_reduction
@@ -79,15 +79,15 @@ class TwitterReduction(PostgresBaseModel):
         order by createddate desc limit 1;
         """
         params = {'root_user_id':root_user_id}
-        results = cls.postgres_handle.execute_query(qry, params)
+        results = postgres_handle.execute_query(qry, params)
         if results:
-            return cls(**results[0])
+            return cls(postgres_handle=postgres_handle, **results[0])
         else:
             return None
     
     @classmethod
-    def create_reduction(cls, root_user_id, user_ids, x_coordinates, y_coordinates):
-        twitter_reduction = cls()
+    def create_reduction(cls, root_user_id, user_ids, x_coordinates, y_coordinates, postgres_handle):
+        twitter_reduction = cls(postgres_handle=postgres_handle)
         twitter_reduction.root_user_id = root_user_id
         twitter_reduction.user_ids = user_ids
         twitter_reduction.x_coordinates = x_coordinates

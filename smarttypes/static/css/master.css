@@ -106,7 +106,7 @@ body{
 
 #page_body{
     text-align:left;
-    margin: 35px 10px;
+    margin: 30px 15px;
 }  
 
 #footer{
@@ -119,17 +119,17 @@ body{
 forms
 ==============================*/
 
-span.label{font-weight: normal;font-size:18px;}
+span.label{font-weight: normal;font-size:16px;}
 input.text{padding: 2px;}
 input.submit{
     color: #FFFFFF;
     font-weight: normal;
     padding: 1px;
-    background-color:#101010;
+    background-color:#333333;
     cursor:pointer;
 }
 input.submit:hover{
-    background-color:#333333;
+    background-color:#666666;
 }
 
 
