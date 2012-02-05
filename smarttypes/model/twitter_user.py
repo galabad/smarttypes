@@ -5,7 +5,7 @@ from smarttypes import model
 from types import NoneType
 from datetime import datetime, timedelta
 import numpy, random, heapq
-import collections, csv
+import collections, csv, sys
 from copy import copy
 
 
@@ -108,18 +108,18 @@ class TwitterUser(PostgresBaseModel):
                not self.caused_an_error and \
                not self.protected
     
-    def get_random_followie_id(self, not_in_this_list=[]):
+    def get_random_followie_id(self, not_in_this_list=[], attempts=0):
         random_index = random.randrange(0, len(self.following_ids)) 
         random_id = self.following_ids[random_index]
-        if random_id in not_in_this_list:
-            return self.get_random_followie_id(not_in_this_list)
+        if random_id in not_in_this_list and attempts < sys.getrecursionlimit():
+            attempts += 1
+            return self.get_random_followie_id(not_in_this_list, attempts)
         else:
             return random_id
         
     def get_someone_in_my_network_to_load(self):
         """
-        keep in mind that 'loading' a user means storing all their connections
-        we try to load self, the people self follows, and the people self follows follows
+        'loading' a user means storing all the edges to the people they follow (followies)
         """
         #the people self follows
         following_and_expired_list = self.following_and_expired
@@ -129,9 +129,8 @@ class TwitterUser(PostgresBaseModel):
         #the people self follows follows
         else:
             tried_to_load_these_ids = []
-            for i in range(len(self.following_ids)): #give up at some point (this could be anything)
+            for i in range(len(self.following_ids) * 4): #give up at some point (this could be anything)
                 random_following_id = self.get_random_followie_id(tried_to_load_these_ids)
-                print random_following_id
                 random_following = TwitterUser.get_by_id(random_following_id, self.postgres_handle)
                 random_following_following_and_expired_list = random_following.following_and_expired
                 if random_following_following_and_expired_list:

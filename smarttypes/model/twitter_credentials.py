@@ -14,6 +14,7 @@ class TwitterCredentials(PostgresBaseModel):
         'access_secret',
         'twitter_id',
         'email',
+        'root_user_id'
     ]    
     table_defaults = {}
     
@@ -33,6 +34,12 @@ class TwitterCredentials(PostgresBaseModel):
             return None 
         return model.twitter_user.TwitterUser.get_by_id(self.twitter_id, self.postgres_handle)
 
+    @property
+    def root_user(self):
+        if not self.root_user_id:
+            return None 
+        return model.twitter_user.TwitterUser.get_by_id(self.root_user_id, self.postgres_handle)    
+    
     @classmethod
     def create(cls, access_key, access_secret, postgres_handle):
         return cls(postgres_handle=postgres_handle, 
@@ -57,7 +64,9 @@ class TwitterCredentials(PostgresBaseModel):
     @classmethod
     def get_all(cls, postgres_handle):
         qry = """
-        select * from twitter_credentials;
+        select * 
+        from twitter_credentials
+        order by createddate desc;
         """
         results = postgres_handle.execute_query(qry)
         return [cls(postgres_handle=postgres_handle, **x) for x in results]

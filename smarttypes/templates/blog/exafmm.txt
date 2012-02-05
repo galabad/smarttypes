@@ -1,0 +1,25 @@
+
+**People
+
+Matthew Knepley 
+knepley@mcs.anl.gov
+http://people.cs.uchicago.edu/~knepley/
+
+Aron Ahmadia 
+aron.ahmadia@kaust.edu.sa
+http://aron.ahmadia.net/
+
+Rio Yokota 
+rio.yokota@kaust.edu.sa
+http://www.bu.edu/me/people/adjunct-research-visiting-and-associated-faculty/rio-yokota-ph-d/
+
+**Projects
+
+exafmm repo -- https://bitbucket.org/exafmm/exafmm/overview
+
+the PETSc project -- http://www.mcs.anl.gov/petsc/
+
+**Installing
+
+$ sudo apt-get install libmpich2-dev vtk-tcl
+

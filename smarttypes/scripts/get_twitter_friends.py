@@ -1,15 +1,14 @@
 
+from multiprocessing import Process
 import smarttypes, sys
 from smarttypes.config import *
-
 from smarttypes.utils.postgres_handle import PostgresHandle
-postgres_handle = PostgresHandle(smarttypes.connection_string)
-
-import tweepy
-from tweepy import TweepError
 from smarttypes.model.twitter_user import TwitterUser
+from smarttypes.model.twitter_credentials import TwitterCredentials
 from smarttypes.utils.twitter_api_utils import get_rate_limit_status
 from datetime import datetime, timedelta
+import tweepy
+from tweepy import TweepError
 
 MAX_FOLLOWING_COUNT = TwitterUser.MAX_FOLLOWING_COUNT
 AVG_PEOPLE_RETURNED_PER_QUERY = 80
@@ -17,13 +16,12 @@ REMAINING_HITS_THRESHOLD = 20
 if (MAX_FOLLOWING_COUNT / AVG_PEOPLE_RETURNED_PER_QUERY) > REMAINING_HITS_THRESHOLD:
     raise Exception("get_twitter_friends script error: the code assumes this wont happen.")
 
-
 def continue_or_exit(api_handle):
     remaining_hits, reset_time = get_rate_limit_status(api_handle)
     if remaining_hits < REMAINING_HITS_THRESHOLD:
         raise Exception("remaining_hits less than threshold")
         
-def load_user_and_the_people_they_follow(api_handle, screen_name):
+def load_user_and_the_people_they_follow(api_handle, screen_name, postgres_handle):
     print "Attempting to load %s" % screen_name
     continue_or_exit(api_handle)
     
@@ -68,32 +66,32 @@ def load_user_and_the_people_they_follow(api_handle, screen_name):
         if api_following.protected:
             continue 
         model_following = TwitterUser.upsert_from_api_user(api_following, postgres_handle)
+        postgres_handle.connection.commit()
         following_ids.append(model_following.id)
     model_user.save_following_ids(following_ids)
     postgres_handle.connection.commit()
     return model_user
 
-
-if __name__ == "__main__":
-    
-    if not len(sys.argv) > 1:
-        raise Exception('Need a twitter handle.')
-    else:
-        screen_name = sys.argv[1]
-        
+def pull_some_users(screen_name):
+    postgres_handle = PostgresHandle(smarttypes.connection_string)
     model_user = TwitterUser.by_screen_name(screen_name, postgres_handle)
     if not model_user.credentials:
         raise Exception('%s does not have api credentials!' % screen_name)
-    
     api_handle = model_user.credentials.api_handle
-    
-    twitter_user = load_user_and_the_people_they_follow(api_handle, screen_name)
+    twitter_user = load_user_and_the_people_they_follow(api_handle, screen_name, postgres_handle)
     load_this_user = twitter_user.get_someone_in_my_network_to_load()
     while load_this_user:
-        load_user_and_the_people_they_follow(api_handle, load_this_user.screen_name)
+        load_user_and_the_people_they_follow(api_handle, load_this_user.screen_name, postgres_handle)
         load_this_user = twitter_user.get_someone_in_my_network_to_load()
         #load_this_user = None
-        
     print "Finshed loading all related users for %s!" % screen_name
-    
+
+if __name__ == "__main__":
+    postgres_handle = PostgresHandle(smarttypes.connection_string)
+    for creds in TwitterCredentials.get_all(postgres_handle):
+        root_user = creds.root_user
+        if root_user:
+            p = Process(target=pull_some_users, args=(root_user.screen_name,))
+            p.start()
+        
             

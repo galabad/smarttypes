@@ -161,7 +161,7 @@ create table twitter_credentials(
     access_secret text unique not null,
     twitter_id text unique references twitter_user(id),
     email text,
-    root_user_id 
+    root_user_id text unique references twitter_user(id)
 );
 CREATE TRIGGER twitter_credentials_modified BEFORE UPDATE
 ON twitter_credentials FOR EACH ROW
