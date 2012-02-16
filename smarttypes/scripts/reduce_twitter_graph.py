@@ -1,34 +1,55 @@
 
+from multiprocessing import Process
 from smarttypes.graphreduce import GraphReduce
 from datetime import datetime
 import numpy as np
 from collections import defaultdict
-import networkx
+import networkx, pickle
 
 import smarttypes, random
 from smarttypes.utils.postgres_handle import PostgresHandle
-postgres_handle = PostgresHandle(smarttypes.connection_string)
 
 from smarttypes.model.twitter_user import TwitterUser
 from smarttypes.model.twitter_group import TwitterGroup
 from smarttypes.model.twitter_reduction import TwitterReduction
+from smarttypes.model.twitter_credentials import TwitterCredentials
 
 
-if __name__ == "__main__":
-
+def reduce_graph(screen_name, distance=20, min_followers=60, just_load_from_file=False):
+    
+    postgres_handle = PostgresHandle(smarttypes.connection_string)
+    
+    if just_load_from_file:
+        print "Loading data from a pickle."
+        gr = GraphReduce(screen_name, {}, [])
+        f = open(gr.pickle_file_path)
+        twitter_reduction, groups = pickle.load(f)
+        twitter_reduction.id = None
+        twitter_reduction.postgres_handle = postgres_handle
+        twitter_reduction.save()
+        postgres_handle.connection.commit()
+        for group in groups:
+            group.id = None
+            group.reduction_id = twitter_reduction.id
+            group.postgres_handle = postgres_handle
+            group.save()
+            postgres_handle.connection.commit()
+        TwitterGroup.mk_tag_clouds(twitter_reduction.id, postgres_handle)
+        postgres_handle.connection.commit()
+        print "All done!"
+        return 0
+    
     ########################
     ##reduce
     ########################
-    #follower_followies_map, followers = {}, []
-    #root_user = TwitterUser.by_screen_name('edchedch', postgres_handle)
-    root_user = TwitterUser.by_screen_name('SmartTypes', postgres_handle)
-    follower_followies_map, followers = root_user.get_graph_info(20,60)
-    gr = GraphReduce(follower_followies_map, followers)
+    root_user = TwitterUser.by_screen_name(screen_name, postgres_handle)
+    follower_followies_map, followers = root_user.get_graph_info(distance=distance, min_followers=min_followers)
+    gr = GraphReduce(screen_name, follower_followies_map, followers)
     gr.reduce_with_linloglayout()
     gr.load_linloglayout_from_file()
     
     ########################
-    ##save reduction    
+    ##save reduction in db    
     ########################
     root_user_id = root_user.id
     user_ids = []
@@ -44,11 +65,10 @@ if __name__ == "__main__":
     ########################
     ##create groups    
     ########################
-    #gr.find_kmeans_clusters(n_clusters=30)
     gr.find_dbscan_clusters(eps=0.48, min_samples=14)
     
     ########################
-    ##save groups    
+    ##save groups in db   
     ########################
     groups = []
     for i in range(gr.n_clusters):
@@ -83,8 +103,25 @@ if __name__ == "__main__":
     TwitterGroup.mk_tag_clouds(twitter_reduction.id, postgres_handle)
     postgres_handle.connection.commit()
     
+    ########################
+    ##pickle it 
+    ########################
+    delattr(twitter_reduction, 'postgres_handle')
+    for group in groups:
+        delattr(group, 'postgres_handle')
+    dump_this = (twitter_reduction, groups)
+    f = open(gr.pickle_file_path, 'w')
+    pickle.dump(dump_this, f)
     
+
+if __name__ == "__main__":
+    postgres_handle = PostgresHandle(smarttypes.connection_string)
+    for creds in TwitterCredentials.get_all(postgres_handle):
+        root_user = creds.root_user
+        if root_user:
+            distance = int(400 / (root_user.following_count / 100.0))
+            reduce_graph(root_user.screen_name, distance=distance, min_followers=60, just_load_from_file=True)        
         
-        
-        
-        
+            
+            
+            

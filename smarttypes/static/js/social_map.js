@@ -1,9 +1,9 @@
 
 var global_group_idx = 0;
 
-var start_page = function(reduction_id, num_groups){
+var load_social_map = function(reduction_id, num_groups){
 
-    var coord_scale = d3.scale.linear().domain([0,1]).range([10,440]);
+    var coord_scale = d3.scale.linear().domain([0,1]).range([10,420]);
     var color_scale = d3.scale.linear().domain([0,num_groups])
         .interpolate(d3.interpolateRgb)
         .range(["#cccccc", "#000000"]);
@@ -23,10 +23,10 @@ var start_page = function(reduction_id, num_groups){
             .attr("r", 3)
             .style("fill", function(d, i) { return color_scale(d.group_index); })
             .style("cursor", "pointer")
-            .on("click", function(d,i) { show_cluster(d.group_index); });
+            .on("click", function(d,i) { show_cluster(d.group_index, reduction_id); });
         
         $('div#spinner').hide();
-        show_cluster(global_group_idx);
+        show_cluster(global_group_idx, reduction_id);
     });
       
     $('a#decrement_group').click(function(e){
@@ -36,7 +36,7 @@ var start_page = function(reduction_id, num_groups){
         else{
             global_group_idx -= 1;
         }
-        show_cluster(global_group_idx);
+        show_cluster(global_group_idx, reduction_id);
     });      
     
     $('a#increment_group').click(function(e){
@@ -46,13 +46,13 @@ var start_page = function(reduction_id, num_groups){
         else{
             global_group_idx += 1;
         }
-        show_cluster(global_group_idx);
+        show_cluster(global_group_idx, reduction_id);
     });
 }
 
 var old_group_index = -1;
 var old_group_color = "";
-var show_cluster = function(group_idx){
+var show_cluster = function(group_idx, reduction_id){
     //change the old color back
     if (old_group_index != -1){
         d3.selectAll('circle.group_' + old_group_index).style("fill", old_group_color);
@@ -65,7 +65,7 @@ var show_cluster = function(group_idx){
     $.ajax({type:"POST",
             url:"/social_map/ajax_group",
             cache:false,
-            data:{'group_index': group_idx},
+            data:{'group_index': group_idx, 'reduction_id':reduction_id},
             dataType:"html",
             error:function(){},
             success:function(html){

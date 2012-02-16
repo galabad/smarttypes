@@ -5,7 +5,7 @@
 
 /*root*/
 
-    #page_wrapper{font-family:'ColaborateLightRegular',Arial,sans-serif;color:#666666;line-height:135%;}
+    #page_wrapper{font-family:'ColaborateLightRegular',Arial,sans-serif;color:#404040;line-height:135%;}
 
 /*headers */
 
@@ -17,7 +17,7 @@
 
 /*paragraphs*/
 
-    p{margin:10px 0;}  
+    p{margin:10px 5px;}  
 
 /*lists*/    
 
@@ -44,17 +44,16 @@
     img{border:none;padding:0;}
 
     blockquote{
-        margin:10px 0;
+        margin:10px 10px;
         padding:5px 10px;
-    font-style:italic;
-
+        text-align:center;
     }   
     blockquote p, 
     blockquote ul,
     blockquote ol,
     blockquote li,
     blockquote a{
-        font-size:16px;
+        font-size:19px;
     }
 
     pre{
@@ -106,7 +105,7 @@ body{
 
 #page_body{
     text-align:left;
-    margin: 30px 15px;
+    margin: 25px 20px;
 }  
 
 #footer{

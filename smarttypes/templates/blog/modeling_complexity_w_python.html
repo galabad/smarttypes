@@ -6,6 +6,8 @@
     xmlns:xi="http://www.w3.org/2001/XInclude"
     lang="en">
 
+<meta name="description" content="blah blah" />
+    
 <xi:include href="../master.html" />      
 <head>
 
@@ -18,6 +20,7 @@
 Modeling complexity w/ python (part 1)
 </h1>
 
+<!--
 <p>
 This post is a derivation of 
 <a href="http://python.mirocommunity.org/video/4380/pyohio-2011-using-pymc-to-clus">a talk i gave on complexity and social network analysis</a> 
@@ -25,26 +28,22 @@ This post is a derivation of
 </p>
 
 <p>
-The main point of the talk was/is to inspire curiosity in you the reader/audience member!
+The main point of the talk was/is to inspire curiosity!
 </p>
 
 <p>
-Developing the talk, <a href="http://www.smarttypes.org/about">and the project related to the talk</a>, has been a slow journey.
-I enjoy thinking about complexity, and methods/programs to model it.
-The journey then, is the point i guess.
-</p>
-
-<p>
-Specifically, i want to show how <a href="http://en.wikipedia.org/wiki/Graphical_model">graphical models</a> can help us understand complex phenomena.
-In this post we will highlight some high-level ideas, our following post will detail the code + implementation. 
+Developing the talk, and the project related to the talk, has been a slow journey.
+I enjoy thinking about complexity, and how computers can help us model/untangle it.
+The journey then, is the point i suppose.
 </p>
 
 <h2>Everything is related</h2>
+-->
 
 <p>
 The universe is complex.
 Everything around us (our weather, milk, yards, economy, etc...) operate under a veil of complexity.
-Humans have a long history of trying to tame complexity.
+Humans have a long history of trying to tame this complexity beast.
 </p>
 
 <blockquote>
@@ -66,7 +65,7 @@ and
 
 <p>
 Arguably, <a href="http://en.wikipedia.org/wiki/Butterfly_effect">the butterfly effect</a> is complexity science's crowning achievement.
-Show me another <a href="http://en.wikipedia.org/wiki/The_Butterfly_Effect">complexity inspired movie starring man of science Ashton Kutcher</a>
+Show me another complexity inspired movie <a href="http://en.wikipedia.org/wiki/The_Butterfly_Effect">starring man of science, Ashton Kutcher</a>
 and i'll rethink that claim.
 </p>
 
@@ -79,11 +78,8 @@ Things are related in weird/crazy ways.
 
 <p>
 Perhaps everything is related!
-</p>
-
-<p>
-<a href="http://en.wikipedia.org/wiki/Determinism">Here's what wikipedia has to say on the matter</a>.
-From August 23 2011:
+<a href="http://en.wikipedia.org/wiki/Determinism">Here's what wikipedia has to say:</a>
+<!--From August 23 2011-->
 </p>
 
 <blockquote>
@@ -94,7 +90,7 @@ From August 23 2011:
 
 <p style="text-align:center;padding-top:20px;">"everything under the sun is in tune"</p>
 
-<p style="text-align:center;">
+<p style="text-align:center;padding-bottom:20px;">
 <img src="/static/images/blog/dark_side_of_the_moon.png" style="width:200px;padding-top:0;" alt="dark_side_of_the_moon.png"/>
 </p>
 
@@ -114,50 +110,17 @@ Even if we could measure and compute everything's influence on everything else, 
 In short, we need to embrace uncertainty!
 </p>
 
-<p>
-[triumphant_horn_blows] Enter probability!
-</p>
-
-<blockquote>
-<p>
-"Probability provides a way of summarizing the uncertainty that comes from our laziness and ignorance." -- 
-<a href="http://www.ai-class.com">from the text of Stanford's free AI class</a>
-</p>
-</blockquote>
-
-<p> 
-The evolution of a seemingly random process can be modeled by a graph of related 
-<a href="http://www.khanacademy.org/video/introduction-to-random-variables?playlist=Probability">random variables</a> (probability distributions).
-This is know as <a href="http://en.wikipedia.org/wiki/Graphical_model">graphical modeling</a>, and turns out to be a great way to model complexity.
-</p>
-
-<h2>Why we need machines</h2>
-
-<p>
-The visualization below is a <a href="http://en.wikipedia.org/wiki/Attractor">Strange attractor</a>.
-It's a computer generated visualization, of a computer generated model, of a real physical system or process.
-I'm fond of this image. 
-</p>
-
-<p>
-Try to imagine this picture as a
-<a href="http://en.wikipedia.org/wiki/Joint_probability_distribution">joint probability distribution</a>
-of 3 dimensional complex system.
-</p>
-
+<!--
 <p style="text-align:center;">
 <img src="/static/images/blog/strange_attractor.jpg" style="" alt="social_network_graph.jpg"/>
 </p>
-
-<p>
-Now try to imagine a joint probability distribution with 10, 100, or 1,000 dimensions.
-</p>
+-->
 
 <h2>Predicting the actions of humans</h2>
 
 <p>
 The stock market is a perfect forum for complexity analysis.
-The game is simple and straightforward, predict the future better than your opponents, win a lot of money. 
+The game is simple, predict the future better than your opponents and win a lots of money.
 </p>
 
 <!--<p>
@@ -170,7 +133,7 @@ The game is simple and straightforward, predict the future better than your oppo
 </p>
 </blockquote>
 
-<p style="text-align:center;">
+<p style="text-align:center;padding-bottom:20px;">
 <img src="/static/images/blog/runningbulls.jpg" style="" alt="runningbulls.jpg"/>
 </p>
 
@@ -216,7 +179,7 @@ the same way a Moroccan butterfly can trigger an Ohio hail storm.
 </p>
 -->
 
-<p style="text-align:center;">
+<p style="text-align:center;padding-bottom:20px;">
  <img src="/static/images/blog/social_network_graph.jpg" style="" alt="social_network_graph.jpg"/>
 </p>
 
@@ -229,7 +192,7 @@ Here are a few of many examples:
 </p>
 
 <p>
-From 
+This is from 
 <a href="http://online.wsj.com/article_email/SB10001424052970204138204576598942105167646-lMyQjAxMTAxMDAwMzEwNDMyWj.html">
 a WSJ article on Virginia's magnitude 5.8 earthquake that hit last August
 </a>: 
@@ -240,49 +203,24 @@ a WSJ article on Virginia's magnitude 5.8 earthquake that hit last August
 Never have scientists had so much readily accessible, real-time data about what people say...
 Twitter texts are as timely as a pulse beat and, taken together, automatically compile the raw material of social history.
 </p>
-
-<p>
-As Twitter's message traffic has grown explosively, so has the scientific appetite for the insights the data can yield. Dozens of new scholarly studies over the past 18 months by computer-network analysts and sociologists have plumbed the public torrents of data made available by Twitter through special links with the company's computer servers. This research has harnessed the service to monitor political activity and employee morale, track outbreaks of flu and food poisoning, map fluctuations in moods around the world, predict box-office receipts for new movies, and get a jump on changes in the stock market.
-</p>
-
 </blockquote>
 
 <p>
-From <a href="https://www.fbo.gov/index?s=opportunity&amp;mode=form&amp;id=6ef12558b44258382452fcf02942396a&amp;tab=core&amp;_cview=0">
+This is from <a href="https://www.fbo.gov/index?s=opportunity&amp;mode=form&amp;id=6ef12558b44258382452fcf02942396a&amp;tab=core&amp;_cview=0">
 the DARPA Social Media in Strategic Communication RFP
 </a>:
 </p>
 
 <blockquote>
 <p>
-The general goal of the Social Media in Strategic Communication (SMISC) program is to develop 
-a new science of social networks built on an emerging technology base.  In particular, SMISC 
-will develop automated and semi‐automated operator support tools and techniques for the 
-systematic and methodical use of social media at data scale and in a timely fashion to 
-accomplish four specific program goals: 
-</p>
-
-<ol>
-<li>
-Detect, classify, measure and track the (a) formation, development and spread of ideas 
-and concepts (memes), and (b) purposeful or deceptive messaging and misinformation.
-</li>
-<li> 
 Recognize persuasion campaign structures and influence operations across social media 
-sites and communities.  
-</li>
-<li>
-Identify participants and intent, and measure effects of persuasion campaigns.  
-</li>
-<li>
-Counter messaging of detected adversary influence operations. 
-</li>
-</ol>
+sites and communities.  Counter messaging of detected adversary influence operations.
+Identify participants and intent, and measure effects of persuasion campaigns.
+</p>
 </blockquote>
 
 <p>
-That's right, "Counter messaging".
-It's not just about listening, it's also about influence! 
+That's right, "Counter messaging". It's also about influence! 
 </p>
 
 <h2>To be continued</h2>

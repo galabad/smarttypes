@@ -59,6 +59,8 @@ create table twitter_user(
 CREATE TRIGGER twitter_user_modified BEFORE UPDATE
 ON twitter_user FOR EACH ROW
 EXECUTE PROCEDURE ts_modifieddate();
+
+CREATE INDEX idx_twitter_user_screen_name ON twitter_user (screen_name);
 """
 postgres_handle.execute_query(twitter_user, return_results=False)
 postgres_handle.connection.commit()
@@ -161,7 +163,8 @@ create table twitter_credentials(
     access_secret text unique not null,
     twitter_id text unique references twitter_user(id),
     email text,
-    root_user_id text unique references twitter_user(id)
+    root_user_id text unique references twitter_user(id),
+    last_root_user_api_query timestamp
 );
 CREATE TRIGGER twitter_credentials_modified BEFORE UPDATE
 ON twitter_credentials FOR EACH ROW

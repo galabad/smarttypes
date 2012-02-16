@@ -54,6 +54,8 @@ class WebResponse(object):
         #defaults
         if not 'title' in self.response_dict: 
             self.response_dict['title'] = smarttypes.default_title
+        if not 'meta_page_description' in self.response_dict: 
+            self.response_dict['meta_page_description'] = smarttypes.site_description
         if not 'template_path' in self.response_dict: 
             self.response_dict['template_path'] = '%s.html' % self.controller_name
         if not 'active_tab' in self.response_dict: 

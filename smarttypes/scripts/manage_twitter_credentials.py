@@ -1,4 +1,5 @@
 
+from datetime import datetime
 import smarttypes, sys, string
 from smarttypes.config import *
 from smarttypes.model.twitter_credentials import TwitterCredentials
@@ -14,11 +15,15 @@ def list_cred_details():
         root_user = creds.root_user
         creds_username = creds_user.screen_name if creds_user else 'None'
         root_username = root_user.screen_name if root_user else 'None'
-        print 'Creds for: %s \t Email: %s \t Root users: %s \t Created: %s' % (
+        last_api_query = creds.last_root_user_api_query if creds.last_root_user_api_query else datetime(2000,1,1)
+        
+        print 'Creds for: %s \t Email: %s \t Root users: %s \t Created: %s \t Last_api_query: %s' % (
             string.ljust(creds_username, 12),
             string.ljust(creds.email if creds.email else '', 30),
             string.ljust(root_username, 12), 
-            creds.createddate.strftime('%y_%m_%d %H:%M'))
+            creds.createddate.strftime('%y_%m_%d'),
+            last_api_query.strftime('%y_%m_%d'),
+        )
         
 if __name__ == "__main__":
     
@@ -31,12 +36,14 @@ if __name__ == "__main__":
     else:
         creds_user = TwitterUser.by_screen_name(sys.argv[1], postgres_handle)
         root_user = TwitterUser.by_screen_name(sys.argv[2], postgres_handle)
+        if not root_user:
+            api_user = creds_user.credentials.api_handle.get_user(screen_name=sys.argv[2]) 
+            root_user = TwitterUser.upsert_from_api_user(api_user, postgres_handle)
+            postgres_handle.connection.commit()
         creds = TwitterCredentials.get_by_twitter_id(creds_user.id, postgres_handle)
         creds.root_user_id = root_user.id
         creds.save()
         postgres_handle.connection.commit()
-        
-        
         
         
         

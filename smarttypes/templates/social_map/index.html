@@ -16,7 +16,15 @@
         $(document).ready(function(){
             var num_groups = ${num_groups};
             var reduction_id = ${reduction.id};
-            start_page(reduction_id, num_groups);
+            load_social_map(reduction_id, num_groups);
+            
+            $("select#root_user_selector").change(function(){
+                  var user_id = $("select#root_user_selector option:selected").val();
+                  window.location = '/social_map?user_id=' + user_id;
+            });
+
+            
+            
         });
     </script>
     
@@ -25,12 +33,19 @@
 <body>
 
     <div style="width:900px; margin:0 auto;">
-        <div style="float:left; width:350px;margin:0;padding:0;">
-            <h1 style="margin:0 0 15px 0;font-weight:normal;">
-                <a target="_blank" href="https://twitter.com/#!/${root_user.screen_name}">${root_user.screen_name}</a>
-                social map
-            </h1>
-            <div id="group_details" style="margin:0 0 0 10px;">&nbsp;</div>
+        <div style="float:left; width:350px;margin:0;padding:0 30px 0 0;">        
+            <select id="root_user_selector" style="padding:2px 5px;">
+                <option py:if="iter_user.id == root_user.id" 
+                    py:for="iter_user in users_with_a_reduction" 
+                    value="${iter_user.id}"
+                    selected="selected">
+                        ${iter_user.screen_name}</option>
+                <option py:if="iter_user.id != root_user.id" 
+                    py:for="iter_user in users_with_a_reduction" 
+                    value="${iter_user.id}">
+                        ${iter_user.screen_name}</option>
+            </select>
+            <div id="group_details" style="margin:10px 0 0 10px;">&nbsp;</div>
         </div>
         
         <div id="map_data" style="float:left; width:500px;margin:0;padding:0;">

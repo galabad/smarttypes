@@ -86,6 +86,34 @@ class TwitterReduction(PostgresBaseModel):
             return None
     
     @classmethod
+    def get_users_with_a_reduction(cls, postgres_handle):
+        from smarttypes.model.twitter_user import TwitterUser
+        return_users = []
+        qry = """
+        select distinct root_user_id
+        from twitter_reduction
+        order by root_user_id;
+        """
+        for result in postgres_handle.execute_query(qry):
+            user = TwitterUser.get_by_id(result['root_user_id'], postgres_handle)
+            return_users.append(user)
+        return return_users
+        
+    @classmethod
+    def get_user_reduction_counts(cls, postgres_handle):
+        from smarttypes.model.twitter_user import TwitterUser
+        return_users = []
+        qry = """
+        select root_user_id, count(root_user_id) as reduction_count
+        from twitter_reduction
+        group by root_user_id;
+        """
+        for result in postgres_handle.execute_query(qry):
+            user = TwitterUser.get_by_id(result['root_user_id'], postgres_handle)
+            return_users.append((user, result['reduction_count']))
+        return return_users    
+    
+    @classmethod
     def create_reduction(cls, root_user_id, user_ids, x_coordinates, y_coordinates, postgres_handle):
         twitter_reduction = cls(postgres_handle=postgres_handle)
         twitter_reduction.root_user_id = root_user_id

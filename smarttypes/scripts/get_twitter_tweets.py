@@ -31,6 +31,28 @@ class Listener(StreamListener):
         return True
             
     
+        #for k, v in json.items():
+            #if k == 'user':
+                #user_model = getattr(api.parser.model_factory, 'user')
+                #user = user_model.parse(api, v)
+                #setattr(status, 'author', user)
+                #setattr(status, 'user', user)  # DEPRECIATED
+            #elif k == 'created_at':
+                #setattr(status, k, parse_datetime(v))
+            #elif k == 'source':
+                #if '<' in v:
+                    #setattr(status, k, parse_html_value(v))
+                    #setattr(status, 'source_url', parse_a_href(v))
+                #else:
+                    #setattr(status, k, v)
+                    #setattr(status, 'source_url', None)
+            #elif k == 'retweeted_status':
+                #setattr(status, k, Status.parse(api, v))
+            #else:
+                #setattr(status, k, v)
+        #return status    
+    
+    
 if __name__ == "__main__":
 
     if not len(sys.argv) > 1:

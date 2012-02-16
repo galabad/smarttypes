@@ -39,12 +39,15 @@ class TwitterUser(PostgresBaseModel):
     }
     
     MAX_FOLLOWING_COUNT = 1000
-    RELOAD_FOLLOWING_THRESHOLD = timedelta(days=7)
+    RELOAD_FOLLOWING_THRESHOLD = timedelta(days=14)
     TRY_AGAIN_AFTER_FAILURE_THRESHOLD = timedelta(days=31)
 
     @property
     def credentials(self):
-        return model.twitter_credentials.TwitterCredentials.get_by_twitter_id(self.id, self.postgres_handle)
+        creds = model.twitter_credentials.TwitterCredentials.get_by_twitter_id(self.id, self.postgres_handle)
+        if not creds:
+            creds = model.twitter_credentials.TwitterCredentials.get_by_root_user_id(self.id, self.postgres_handle)
+        return creds
     
     def get_following_ids_at_certain_time(self, at_this_datetime):
         if not at_this_datetime:
@@ -90,11 +93,14 @@ class TwitterUser(PostgresBaseModel):
         return list(return_ids)  
     
     @property
-    def following_and_expired(self):
-        return_list = []
-        for user in self.following:            
+    def following_and_expired_ids(self):
+        following_in_db = self.following
+        following_in_db_ids = set([x.id for x in following_in_db])
+        not_in_db = set(self.following_ids).difference(following_in_db_ids)
+        return_list = list(not_in_db)
+        for user in following_in_db:            
             if user.is_expired:
-                return_list.append(user)
+                return_list.append(user.id)
         return return_list
     
     @property
@@ -117,28 +123,29 @@ class TwitterUser(PostgresBaseModel):
         else:
             return random_id
         
-    def get_someone_in_my_network_to_load(self):
+    def get_id_of_someone_in_my_network_to_load(self):
+        #get_id_of_someone_in_my_network_to_load
         """
         'loading' a user means storing all the edges to the people they follow (followies)
         """
         #the people self follows
-        following_and_expired_list = self.following_and_expired
+        following_and_expired_list = self.following_and_expired_ids
         if following_and_expired_list:
             return following_and_expired_list[0]
         
         #the people self follows follows
         else:
             tried_to_load_these_ids = []
-            for i in range(len(self.following_ids) * 4): #give up at some point (this could be anything)
+            for i in range(200): #give up at some point (this could be anything)
                 random_following_id = self.get_random_followie_id(tried_to_load_these_ids)
                 random_following = TwitterUser.get_by_id(random_following_id, self.postgres_handle)
-                random_following_following_and_expired_list = random_following.following_and_expired
+                random_following_following_and_expired_list = random_following.following_and_expired_ids
                 if random_following_following_and_expired_list:
                     return random_following_following_and_expired_list[0]
                 else:
                     tried_to_load_these_ids.append(random_following_id)
                     
-    def get_graph_info(self, distance=100, min_followers=35):
+    def get_graph_info(self, distance=100, min_followers=60):
         unique_followers = set([self.id])
         follower_followies_map = {self.id:set(self.following_ids)}
         for following in self.following:
@@ -244,9 +251,6 @@ class TwitterUser(PostgresBaseModel):
     def upsert_from_api_user(cls, api_user, postgres_handle):
         if api_user.protected == None:
             api_user.protected = False
-
-        #import pprint
-        #print pprint.pprint(api_user.__dict__)
             
         model_user = cls.get_by_id(api_user.id_str, postgres_handle)
         if model_user:

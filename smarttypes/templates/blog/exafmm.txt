@@ -21,5 +21,6 @@ the PETSc project -- http://www.mcs.anl.gov/petsc/
 
 **Installing
 
-$ sudo apt-get install libmpich2-dev vtk-tcl
+$ sudo apt-get install libmpich2-dev libcr-dev 
+
 

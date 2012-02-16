@@ -18,10 +18,20 @@ import networkx
 
 class GraphReduce(object):
     
-    def __init__(self, follower_followies_map, followers):
+    def __init__(self, reduction_id, follower_followies_map, followers):
+        self.reduction_id = reduction_id
         self.follower_followies_map = follower_followies_map
         self.followers = followers
-        print "followers: %s" % len(followers)
+
+        print "running GraphReduce on %s nodes." % len(self.followers)
+        
+        self.linloglayout_dir = '/home/timmyt/projects/smarttypes/smarttypes/graphreduce/LinLogLayout'
+        self.input_file_name = 'io/%s_input.txt' % self.reduction_id
+        self.output_file_name = 'io/%s_output.txt' % self.reduction_id
+        self.pickle_file_name = 'io/%s.pickle' % self.reduction_id
+        self.input_file_path = '%s/%s' % (self.linloglayout_dir, self.input_file_name)
+        self.output_file_path = '%s/%s' % (self.linloglayout_dir, self.output_file_name)
+        self.pickle_file_path = '%s/%s' % (self.linloglayout_dir, self.pickle_file_name)
         
         self.adjancey_matrix = None
         self.linloglayout_ids = None
@@ -31,7 +41,9 @@ class GraphReduce(object):
         self.linloglayout_similarities = None
         
     def reduce_with_linloglayout(self):
-        input_file = open('/home/timmyt/projects/smarttypes/smarttypes/graphreduce/LinLogLayout/st_input_file.txt', 'w')
+        
+        print "reduce_with_linloglayout"
+        input_file = open(self.input_file_path, 'w')
         for follower, followies in self.follower_followies_map.items():
             for followie in followies:
                 if followie in self.follower_followies_map:
@@ -40,12 +52,16 @@ class GraphReduce(object):
         
         #to recompile
         #$javac -d ../bin LinLogLayout.java
-        os.system('cd /home/timmyt/projects/smarttypes/smarttypes/graphreduce/LinLogLayout; java -cp bin LinLogLayout 2 st_input_file.txt st_output_file.txt;')    
+        os.system('cd %s; java -cp bin LinLogLayout 2 %s %s;' % (
+            self.linloglayout_dir,
+            self.input_file_name,
+            self.output_file_name
+        ))    
     
-    def load_linloglayout_from_file(self, file_path=None):
-        if not file_path:
-            file_path = '/home/timmyt/projects/smarttypes/smarttypes/graphreduce/LinLogLayout/st_output_file.txt'
-        f = open(file_path)
+    def load_linloglayout_from_file(self):
+        
+        print "load_linloglayout_from_file"
+        f = open(self.output_file_path)
         self.linloglayout_reduction = []
         self.linloglayout_ids = []
         for line in f:

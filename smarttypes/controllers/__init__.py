@@ -49,11 +49,24 @@ def blog(req, session, postgres_handle):
     template_path = "blog/index.html"
     if req.path.find('/',1) > 0: #path looks like '/blog/something'
         request_path = req.path[1:]
-        template_path = "%s.html" % changed_url_map.get(request_path, request_path)
-    return {
+        if not request_path.endswith('/'):
+            template_path = "%s.html" % changed_url_map.get(request_path, request_path)
+    
+    d = {
         'template_path':template_path,
         'active_tab':'blog',
-    }
+    }            
+            
+    #get the meta description
+    f = open(os.path.dirname(os.path.dirname(__file__))+'/templates/'+template_path)
+    template_str = f.read()
+    look_for_this = '<meta name="description" content="'
+    start_idx = template_str.find(look_for_this) + len(look_for_this)
+    end_idx = template_str.find('" />', start_idx)
+    if start_idx > len(look_for_this):
+        d['meta_page_description'] = template_str[start_idx:end_idx]
+    
+    return d
 
  
 def contact(req, session, postgres_handle):
