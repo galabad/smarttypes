@@ -1,7 +1,7 @@
 
 
-from smarttypes.model.postgres_base_model import PostgresBaseModel
-from smarttypes import model
+from model.postgres_base_model import PostgresBaseModel
+# from smarttypes import model
 from types import NoneType
 from datetime import datetime, timedelta
 import numpy, random, heapq

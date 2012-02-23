@@ -1,15 +1,16 @@
 
 import tweepy
-from smarttypes.config import *
-from smarttypes.utils import email_utils
-from smarttypes.model.twitter_session import TwitterSession
-from smarttypes.model.twitter_credentials import TwitterCredentials 
-from smarttypes.model.twitter_user import TwitterUser
+from config import *
+from utils import email_utils
+from model.twitter_session import TwitterSession
+from model.twitter_credentials import TwitterCredentials 
+from model.twitter_user import TwitterUser
 from dateutil import tz
 from datetime import datetime
 
 HERE = tz.tzlocal()
 UTC = tz.tzutc()
+
 
 def get_rate_limit_status(api_handle):
     rate_limit_status_dict = api_handle.rate_limit_status()
@@ -20,20 +21,22 @@ def get_rate_limit_status(api_handle):
     reset_time = reset_time_utc.astimezone(HERE)
     return remaining_hits, reset_time
 
+
 def get_signin_w_twitter_url(postgres_handle):
     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET, callback=CALLBACK)
     request_token = auth._get_request_token()
     TwitterSession.create(request_token.key, request_token.secret, postgres_handle)
-    url = "https://api.twitter.com/oauth/authenticate" #might want this: '&force_login=true'
+    url = "https://api.twitter.com/oauth/authenticate"  # might want this: '&force_login=true'
     request = tweepy.oauth.OAuthRequest.from_token_and_callback(token=request_token, http_url=url, callback=CALLBACK)
     return request.to_url()
+
 
 def complete_signin(request_key, verifier, postgres_handle):
     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
     session = TwitterSession.get_by_request_key(request_key, postgres_handle)
     auth.set_request_token(request_key, session.request_secret)
     auth.get_access_token(verifier)
-    #may have signed up already
+    # may have signed up already
     credentials = TwitterCredentials.get_by_access_key(auth.access_token.key, postgres_handle)
     if not credentials:
         credentials = TwitterCredentials.create(auth.access_token.key, auth.access_token.secret, postgres_handle)
@@ -43,14 +46,6 @@ def complete_signin(request_key, verifier, postgres_handle):
         credentials.twitter_id = user.id
         credentials.save()
     screen_name = credentials.twitter_user.screen_name
-    email_utils.send_email('signup@smarttypes.org', ['timmyt@smarttypes.org'], 
+    email_utils.send_email('signup@smarttypes.org', ['timmyt@smarttypes.org'],
                            '%s signed up' % screen_name, 'smarttypes signup!')
     return session.save()
-        
-
-
-    
-    
-    
-    
-    

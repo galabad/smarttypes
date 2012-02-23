@@ -4,6 +4,7 @@ from email.mime.text import MIMEText
 from email.encoders import encode_base64
 from smtplib import SMTP
 
+
 def send_email(send_from, send_to, text, subject, files=[], server='localhost'):
 
     msg = MIMEMultipart()
@@ -22,8 +23,3 @@ def send_email(send_from, send_to, text, subject, files=[], server='localhost'):
     smtp = SMTP(server)
     smtp.sendmail(send_from, send_to, msg.as_string())
     smtp.close()
-
-
-
-
-

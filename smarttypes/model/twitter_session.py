@@ -1,9 +1,9 @@
 
 
-from smarttypes.model.postgres_base_model import PostgresBaseModel
+from model.postgres_base_model import PostgresBaseModel
 import tweepy
-from smarttypes.config import *
-from smarttypes import model
+from config import *
+# from smarttypes import model
 
 
 class TwitterSession(PostgresBaseModel):
@@ -14,20 +14,20 @@ class TwitterSession(PostgresBaseModel):
         'request_key',
         'request_secret',
         'access_key',
-    ]    
+    ]
     table_defaults = {
     }
-    
+
     @property
     def credentials(self):
         from smarttypes.model.twitter_credentials import TwitterCredentials
         if not self.access_key:
             return None
         return TwitterCredentials.get_by_access_key(self.access_key, self.postgres_handle)
-    
+
     @classmethod
     def create(cls, request_key, request_secret, postgres_handle):
-        return cls(postgres_handle=postgres_handle, 
+        return cls(postgres_handle=postgres_handle,
                    request_key=request_key, request_secret=request_secret).save()
 
     @classmethod
@@ -37,5 +37,3 @@ class TwitterSession(PostgresBaseModel):
             return results[0]
         else:
             return None
-
-        

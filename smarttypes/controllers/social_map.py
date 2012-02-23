@@ -1,12 +1,12 @@
 
-from smarttypes.utils.exceptions import RedirectException
-from smarttypes.utils import validation_utils 
+from utils.exceptions import RedirectException
+from utils import validation_utils 
 from genshi.core import Markup
 from genshi import HTML
-from smarttypes.model.twitter_group import TwitterGroup
-from smarttypes.model.twitter_user import TwitterUser
-from smarttypes.model.twitter_reduction import TwitterReduction
-from smarttypes.model.twitter_credentials import TwitterCredentials
+from model.twitter_group import TwitterGroup
+from model.twitter_user import TwitterUser
+from model.twitter_reduction import TwitterReduction
+from model.twitter_credentials import TwitterCredentials
 import numpy as np
 
  

@@ -31,19 +31,10 @@ site_name = 'SmartTypes'
 site_mantra = 'a tool for social discovery'
 default_title = '%s - %s' % (site_name, site_mantra)
 site_description = """
-SmartTypes is an open platform for social network exploration. 
+SmartTypes is an open platform for social network exploration.
 Our software is free and available on github.
 Our aim is to model and understand the complex interactions and interests of niche social groups.
 Our methods are influenced by biological, physical, and complexity science.
 Sign in w/ your twitter account to reserve a spot on our free beta roster.
 """
 site_description = site_description.strip()
-
-
-
-
-
-
-
-
-

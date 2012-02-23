@@ -1,7 +1,7 @@
 
-from smarttypes.model.postgres_base_model import PostgresBaseModel
+from model.postgres_base_model import PostgresBaseModel
 from datetime import datetime, timedelta
-from smarttypes.utils import time_utils, text_parsing
+from utils import time_utils, text_parsing
 import re, string, heapq, random, collections, numpy
 import networkx
 
