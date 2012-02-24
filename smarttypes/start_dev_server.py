@@ -3,7 +3,7 @@ model = __import__('model')
 from multiprocessing import Process
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 import time
-import sys, os
+import os
 
 
 class CustomRequestHandler(WSGIRequestHandler):

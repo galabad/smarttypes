@@ -1,17 +1,18 @@
 
 import social_map
 
-import random, mimetypes, os
+import mimetypes
+import os
 from config import *
 from utils.exceptions import RedirectException
 from utils import twitter_api_utils
-from utils import validation_utils 
-from genshi.core import Markup
-from genshi import HTML
-from model.twitter_group import TwitterGroup
-from model.twitter_user import TwitterUser
-from model.twitter_reduction import TwitterReduction
-import numpy as np
+from utils import validation_utils
+# from genshi.core import Markup
+# from genshi import HTML
+# from model.twitter_group import TwitterGroup
+# from model.twitter_user import TwitterUser
+# from model.twitter_reduction import TwitterReduction
+# import numpy as np
 
 
 def index(req, session, postgres_handle):

@@ -2,4 +2,3 @@
 """
 think about circular references
 """
-

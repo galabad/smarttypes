@@ -1,13 +1,18 @@
 
 # import smarttypes
 import controllers
-from utils import email_utils
-import re, traceback
+# from utils import email_utils
+import re
+import traceback
 from webob import Request
 from utils.web_response import WebResponse
 from utils.exceptions import RedirectException
 from utils.postgres_handle import PostgresHandle
 from model.twitter_session import TwitterSession
+
+DB_USER = ''
+DB_PASSWORD = ''
+connection_string = "host=localhost dbname='smarttypes' user='%s' password='%s'" % (DB_USER, DB_PASSWORD)
 
 urls = [
     (r'^$', controllers.index),

@@ -7,6 +7,12 @@ from genshi.output import encode, get_serializer
 from genshi.template import Context, TemplateLoader
 import simplejson
 
+site_name = 'SmartTypes'
+site_mantra = 'a tool for social discovery'
+default_title = '%s - %s' % (site_name, site_mantra)
+site_description = ''
+default_title = '%s - %s' % (site_name, site_mantra)
+
 #template loader
 loader = TemplateLoader(
     os.path.join(os.path.dirname(__file__), '../templates'),
@@ -47,15 +53,15 @@ class WebResponse(object):
             return [self.return_str]
 
         #global
-        self.response_dict['site_name'] = smarttypes.site_name
-        self.response_dict['site_mantra'] = smarttypes.site_mantra
-        self.response_dict['site_description'] = smarttypes.site_description
+        self.response_dict['site_name'] = site_name
+        self.response_dict['site_mantra'] = site_mantra
+        self.response_dict['site_description'] = site_description
 
         #defaults
         if not 'title' in self.response_dict:
-            self.response_dict['title'] = smarttypes.default_title
+            self.response_dict['title'] = default_title
         if not 'meta_page_description' in self.response_dict:
-            self.response_dict['meta_page_description'] = smarttypes.site_description
+            self.response_dict['meta_page_description'] = site_description
         if not 'template_path' in self.response_dict:
             self.response_dict['template_path'] = '%s.html' % self.controller_name
         if not 'active_tab' in self.response_dict:
