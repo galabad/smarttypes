@@ -4,7 +4,7 @@ var global_group_idx = 0;
 var load_social_map = function(reduction_id, num_groups){
 
     var coord_scale = d3.scale.linear().domain([0,1]).range([10,420]);
-    var color_scale = d3.scale.linear().domain([0,num_groups])
+    var color_scale = d3.scale.linear().domain([-1,num_groups])
         .interpolate(d3.interpolateRgb)
         .range(["#cccccc", "#000000"]);
     
@@ -53,6 +53,12 @@ var load_social_map = function(reduction_id, num_groups){
 var old_group_index = -1;
 var old_group_color = "";
 var show_cluster = function(group_idx, reduction_id){
+
+    //node not tied to a group
+    if (group_idx < 0){
+        return
+    }
+
     //change the old color back
     if (old_group_index != -1){
         d3.selectAll('circle.group_' + old_group_index).style("fill", old_group_color);

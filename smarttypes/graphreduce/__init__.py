@@ -101,7 +101,7 @@ class GraphReduce(object):
 
         iterations = 500
         attractive_force_factor = .00005
-        repulsive_force_factor = 1
+        repulsive_force_factor = 3
         potential_force_factor = 1
 
         x = np.random.random(3 * n) * 20  # coordinates
@@ -125,7 +125,7 @@ class GraphReduce(object):
                 energy_status_msg = 0
 
             #start cooling
-            if float(i) / iterations > .75:
+            if float(i) / iterations > .50:
                 cooling_factor = 1 - (float(i) / iterations)
                 q = (np.ones(n) / node_degrees) * repulsive_force_factor * cooling_factor
 

@@ -43,9 +43,9 @@ def reduce_graph(screen_name, distance=20, min_followers=60,
     root_user = TwitterUser.by_screen_name(screen_name, postgres_handle)
     follower_followies_map = root_user.get_graph_info(distance=distance, min_followers=min_followers)
     gr = GraphReduce(screen_name, follower_followies_map)
-    gr.reduce_with_exafmm()
-    #gr.reduce_with_linloglayout()
-    #gr.load_linloglayout_from_file()
+    #gr.reduce_with_exafmm()
+    gr.reduce_with_linloglayout()
+    gr.load_linloglayout_from_file()
 
     ########################
     ##save reduction in db

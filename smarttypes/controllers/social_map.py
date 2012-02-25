@@ -3,6 +3,7 @@
 # from smarttypes.utils import validation_utils
 # from genshi.core import Markup
 # from genshi import HTML
+import smarttypes
 from smarttypes.model.twitter_group import TwitterGroup
 from smarttypes.model.twitter_user import TwitterUser
 from smarttypes.model.twitter_reduction import TwitterReduction
@@ -42,9 +43,14 @@ def map_data(req, session, postgres_handle):
             reduction_id = 0
         reduction = TwitterReduction.get_by_id(reduction_id, postgres_handle)
 
+    reduction_details = []
+    if reduction:
+        return_all = not smarttypes.config.IS_PROD  # for debugging
+        reduction_details = reduction.get_details(return_all=return_all)
+
     return {
         'content_type': 'application/json',
-        'json': reduction.get_details() if reduction else []
+        'json': reduction_details
     }
 
 #todo: return entire page for the search engines

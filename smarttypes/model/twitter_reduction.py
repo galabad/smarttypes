@@ -33,14 +33,14 @@ class TwitterReduction(PostgresBaseModel):
         from smarttypes.model.twitter_group import TwitterGroup
         return TwitterGroup.get_by_name_value('reduction_id', self.id, self.postgres_handle)
 
-    def get_details(self):
+    def get_details(self, return_all=False):
         details = []
         for i in range(len(self.user_ids)):
             user_id = self.user_ids[i]
             x = self.x_coordinates[i]
             y = self.y_coordinates[i]
             group_index = self.group_indices[i]
-            if group_index >= 0:
+            if group_index >= 0 or return_all:
                 details.append({
                     'id': user_id,
                     'x': x,
