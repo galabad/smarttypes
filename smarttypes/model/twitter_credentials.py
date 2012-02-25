@@ -33,15 +33,17 @@ class TwitterCredentials(PostgresBaseModel):
 
     @property
     def twitter_user(self):
+        from smarttypes.model.twitter_user import TwitterUser
         if not self.twitter_id:
             return None
-        return model.twitter_user.TwitterUser.get_by_id(self.twitter_id, self.postgres_handle)
+        return TwitterUser.get_by_id(self.twitter_id, self.postgres_handle)
 
     @property
     def root_user(self):
+        from smarttypes.model.twitter_user import TwitterUser
         if not self.root_user_id:
             return None
-        return model.twitter_user.TwitterUser.get_by_id(self.root_user_id, self.postgres_handle)
+        return TwitterUser.get_by_id(self.root_user_id, self.postgres_handle)
 
     def maybe_send_initial_map_email(self):
         if not self.root_user_id \
