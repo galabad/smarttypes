@@ -2,9 +2,9 @@
 import tweepy
 from config import *
 from utils import email_utils
-from model.twitter_session import TwitterSession
-from model.twitter_credentials import TwitterCredentials 
-from model.twitter_user import TwitterUser
+from smarttypes.model.twitter_session import TwitterSession
+from smarttypes.model.twitter_credentials import TwitterCredentials 
+from smarttypes.model.twitter_user import TwitterUser
 from dateutil import tz
 from datetime import datetime
 

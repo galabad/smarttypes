@@ -8,7 +8,7 @@ from webob import Request
 from utils.web_response import WebResponse
 from utils.exceptions import RedirectException
 from utils.postgres_handle import PostgresHandle
-from model.twitter_session import TwitterSession
+from smarttypes.model.twitter_session import TwitterSession
 
 urls = [
     (r'^$', controllers.index),

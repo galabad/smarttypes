@@ -1,4 +1,4 @@
-from model.postgres_base_model import PostgresBaseModel
+from smarttypes.model.postgres_base_model import PostgresBaseModel
 from datetime import datetime, timedelta
 from utils import time_utils, text_parsing
 import re, string, heapq, random, collections, numpy
@@ -30,7 +30,7 @@ class TwitterReduction(PostgresBaseModel):
         return return_dict
 
     def get_groups(self):
-        from model.twitter_group import TwitterGroup
+        from smarttypes.model.twitter_group import TwitterGroup
         return TwitterGroup.get_by_name_value('reduction_id', self.id, self.postgres_handle)
 
     def get_details(self):
@@ -87,7 +87,7 @@ class TwitterReduction(PostgresBaseModel):
 
     @classmethod
     def get_users_with_a_reduction(cls, postgres_handle):
-        from model.twitter_user import TwitterUser
+        from smarttypes.model.twitter_user import TwitterUser
         return_users = []
         qry = """
         select distinct root_user_id
@@ -101,7 +101,7 @@ class TwitterReduction(PostgresBaseModel):
 
     @classmethod
     def get_user_reduction_counts(cls, postgres_handle):
-        from model.twitter_user import TwitterUser
+        from smarttypes.model.twitter_user import TwitterUser
         return_users = []
         qry = """
         select root_user_id, count(root_user_id) as reduction_count
