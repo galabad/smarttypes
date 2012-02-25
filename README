@@ -32,14 +32,15 @@ $ echo '/home/timmyt/projects/smarttypes' >> smarttypes.pth; mv smarttypes.pth ~
 
 #install dependencies (may not need these exact versions) 
 Genshi==0.6
-gensim==0.8.1
-networkx==1.5
+WebOb==1.2b3
+networkx==1.6
 numpy==1.6.1
-psycopg2==2.4.2
+psycopg2==2.4.4
 python-dateutil==2.0
-scipy==0.9.0
-tweepy==1.7.1 (install from github repo -- https://github.com/tweepy/tweepy/blob/master/INSTALL)
-WebOb==1.2b2
+scikit-learn==0.10
+scipy==0.10.0
+simplejson==2.3.2
+tweepy==1.8
 
 #add config params
 $ cd smarttypes/smarttypes/
@@ -60,10 +61,7 @@ $ python start_dev_server.py
 
 #click the 'Sign in w/ twitter' link, and sign up for your app
 
-#to begin loading your social network:
-$ python scripts/get_twitter_friends.py YourTwitterHandle
-
-#note, the twitter handle is case sensitive
+#that should be enough to get you going, for more info please contact us @ hello@smarttypes.org
 
 ***********************************************************
 License
