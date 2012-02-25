@@ -1,18 +1,10 @@
-
-import social_map
-
+import social_map  # need this
 import mimetypes
 import os
 from config import *
 from utils.exceptions import RedirectException
 from utils import twitter_api_utils
 from utils import validation_utils
-# from genshi.core import Markup
-# from genshi import HTML
-# from model.twitter_group import TwitterGroup
-# from model.twitter_user import TwitterUser
-# from model.twitter_reduction import TwitterReduction
-# import numpy as np
 
 
 def index(req, session, postgres_handle):
@@ -66,7 +58,6 @@ def blog(req, session, postgres_handle):
     end_idx = template_str.find('" />', start_idx)
     if start_idx > len(look_for_this):
         d['meta_page_description'] = template_str[start_idx:end_idx]
-
     return d
 
 
@@ -75,7 +66,7 @@ def contact(req, session, postgres_handle):
 
 
 def static(req, session, postgres_handle):
-    #apache will handle this in prod
+    #apache will handle this in prod (this is for testing)
     static_path = os.path.dirname(os.path.dirname(__file__)) + req.path
     return {
         'content_type': mimetypes.guess_type(static_path)[0],

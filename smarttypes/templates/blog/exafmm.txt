@@ -21,6 +21,11 @@ the PETSc project -- http://www.mcs.anl.gov/petsc/
 
 **Installing
 
-$ sudo apt-get install libmpich2-dev libcr-dev 
+$ hg clone https://bitbucket.org/exafmm/exafmm
+$ sudo apt-get install libmpich2-dev libcr-dev
+$ cd ~/projects/exafmm/wrapper
+$ make libcoulomb.so
+$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/projects/exafmm/wrapper
+$ python coulomb.py 
 
 

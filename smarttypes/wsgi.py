@@ -1,7 +1,7 @@
 
-# import smarttypes
+import smarttypes
 import controllers
-# from utils import email_utils
+from utils import email_utils
 import re
 import traceback
 from webob import Request
@@ -9,10 +9,6 @@ from utils.web_response import WebResponse
 from utils.exceptions import RedirectException
 from utils.postgres_handle import PostgresHandle
 from model.twitter_session import TwitterSession
-
-DB_USER = ''
-DB_PASSWORD = ''
-connection_string = "host=localhost dbname='smarttypes' user='%s' password='%s'" % (DB_USER, DB_PASSWORD)
 
 urls = [
     (r'^$', controllers.index),
@@ -40,7 +36,7 @@ def application(environ, start_response):
         if match:
             request = Request(environ)
             try:
-                postgres_handle = PostgresHandle(connection_string)
+                postgres_handle = PostgresHandle(smarttypes.connection_string)
                 try:
                     session = None
                     if request.cookies.get('session'):
@@ -74,8 +70,10 @@ def application(environ, start_response):
                 #can't use print statements with mod_wsgi
                 error_string = traceback.format_exc()
                 start_response('500 Internal Server Error', [('Content-Type', 'text/plain')])
-                # email_utils.send_email('error@smarttypes.org', ['timmyt@smarttypes.org'],
-                #                        error_string, 'smarttypes site error')
+                if smarttypes.config.IS_PROD:
+                    email_utils.send_email('error@smarttypes.org',
+                        ['timmyt@smarttypes.org', 'kevinroth82@gmail.com'],
+                        error_string, 'smarttypes site error')
                 return [error_string]
 
     #couldn't find it

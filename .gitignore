@@ -1,3 +1,11 @@
 *pyc
 *.wpr
+*.sublime-*
+.ropeproject/
+smarttypes/backups
+smarttypes/static/video
+smarttypes/static/graphlab_pmf.tar.gz
+smarttypes/static/graphlab_pmf/
+smarttypes/graphreduce/LinLogLayout/io/
+time.dat
 smarttypes/config.py

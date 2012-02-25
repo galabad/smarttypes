@@ -2,29 +2,40 @@
 import os
 from collections import defaultdict
 import numpy as np
-
-#import pylab as pl
-#import matplotlib
-#from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-#from matplotlib.figure import Figure
-#from matplotlib.axis import Axis
-
 from sklearn.cluster import KMeans
 from sklearn.neighbors import NearestNeighbors
 from scipy.spatial import distance
-from sklearn.cluster import DBSCAN
-
+from sklearn.cluster import DBSCAN, MeanShift, estimate_bandwidth
 import networkx
+from networkx.drawing import layout
+
+import ctypes
+solver=ctypes.CDLL("/home/timmyt/projects/smarttypes/smarttypes/graphreduce/libcoulomb.so")
+
+EPS = 1e-6
+EPS2 = 0
 
 class GraphReduce(object):
     
-    def __init__(self, reduction_id, follower_followies_map, followers):
+    def __init__(self, reduction_id, initial_follower_followies_map):
         self.reduction_id = reduction_id
-        self.follower_followies_map = follower_followies_map
-        self.followers = followers
-
-        print "running GraphReduce on %s nodes." % len(self.followers)
+        self.initial_follower_followies_map = initial_follower_followies_map
+        self.G = self.get_networkx_graph()
+        print "Running graph_reduce on %s nodes." % self.G.number_of_nodes()
         
+        self.reduction = []
+        self.layout_clusters = []
+        self.layout_similarities = None        
+        
+        self.layout_ids = []
+        self.id_to_idx_map = {}
+        i = 0
+        for node_id in self.G.nodes():
+            self.layout_ids.append(node_id)
+            self.id_to_idx_map[node_id] = i
+            i += 1
+        
+        ##linloglayout file paths
         self.linloglayout_dir = '/home/timmyt/projects/smarttypes/smarttypes/graphreduce/LinLogLayout'
         self.input_file_name = 'io/%s_input.txt' % self.reduction_id
         self.output_file_name = 'io/%s_output.txt' % self.reduction_id
@@ -33,125 +44,189 @@ class GraphReduce(object):
         self.output_file_path = '%s/%s' % (self.linloglayout_dir, self.output_file_name)
         self.pickle_file_path = '%s/%s' % (self.linloglayout_dir, self.pickle_file_name)
         
-        self.adjancey_matrix = None
-        self.linloglayout_ids = None
-        self.linloglayout_reduction = None
-        self.linloglayout_clusters = None
-        self.linloglayout_cluster_centers = None
-        self.linloglayout_similarities = None
+    def get_networkx_graph(self):
+        if not '_G' in self.__dict__:
+            self._G = networkx.DiGraph()
+            edges = []
+            for follower, followies in self.initial_follower_followies_map.items():
+                for followie in followies:
+                    if followie in self.initial_follower_followies_map:
+                        edges.append((follower, followie))          
+            self._G.add_edges_from(edges)
+        return self._G
+    
+    def normalize_reduction(self, num_of_standard_deviations=1.0):
+        r_min = np.min(self.reduction, axis=0)
+        min_x = r_min[0]
+        min_y = r_min[1]
+        #print "min(x,y): %s, %s" % (min_x, min_y)        
+        if min_x < 0:
+            self.reduction[:,0] += abs(min_x)
+        if min_y < 0:
+            self.reduction[:,1] += abs(min_y)
+        
+        r_mean = np.mean(self.reduction)
+        r_standard_deviation = np.std(self.reduction)
+        print "mean: %s -- standard_deviation: %s -- num_of_standard_deviations: %s" % (
+            r_mean, r_standard_deviation, num_of_standard_deviations)
+        self.reduction /= r_mean + (r_standard_deviation * num_of_standard_deviations)
+            
+    def set_reduction_coordinates(self, coordinates):
+        self.reduction = []
+        for i in range(self.G.number_of_nodes()):
+            id = self.layout_ids[i]
+            x_cord = coordinates[i*3]
+            y_cord = coordinates[i*3 + 1]
+            self.reduction.append([x_cord, y_cord])
+        self.reduction = np.array(self.reduction)
+        self.normalize_reduction()
+        self.find_dbscan_clusters()
+        #self.find_mean_shift_clusters()
+        
+    def reduce_with_fruchterman_reingold(self):
+        return_dict = layout.fruchterman_reingold_layout(self.G)
+        for id in return_dict:
+            self.reduction.append([return_dict[id][0], return_dict[id][1]])
+        self.reduction = np.array(self.reduction)
+        self.normalize_reduction()
+        
+    def reduce_with_exafmm(self):
+
+        n = self.G.number_of_nodes()
+        A = networkx.to_numpy_matrix(self.G)
+        A = np.asarray(A)
+
+        node_degrees = A.sum(axis=1) + 1
+        for i in range(n):
+            node_id = self.layout_ids[i]
+            node_degree = len(self.G.neighbors(node_id))
+            if node_degree != node_degrees[i]:
+                raise Exception('This is not good. This should not happen.')
+
+        iterations = 500     
+        attractive_force_scaler = .0005
+        repulsive_force_scaler = 1
+        potential_force_scaler = 1
+        
+        x = np.random.random(3*n) * 20 # coordinates 
+        x[2::3] = 0 #set z to 0 for 2d
+        q = (np.ones(n) / node_degrees) * repulsive_force_scaler #charges
+        p = np.ones(n) * potential_force_scaler #potential
+        f = np.zeros(3*n) #force
+        
+        print "iterations: %s -- attractive_force_scaler: %s -- repulsive_force_scaler: %s -- potential_force_scaler: %s\n" % (
+            iterations, attractive_force_scaler, repulsive_force_scaler, potential_force_scaler)        
+        
+        energy_status_msg = 0
+        for i in range(iterations):
+            
+            if i % 50 == 0:
+                self.set_reduction_coordinates(x)
+                print "iteration %s of %s -- energy: %s -- groups: %s" % (i, 
+                    iterations, energy_status_msg if energy_status_msg else '?',
+                    self.n_clusters)
+                energy_status_msg = 0   
+                
+            solver.FMMcalccoulomb(n, x.ctypes.data, q.ctypes.data, p.ctypes.data, f.ctypes.data, 0)
+                    
+            #hooke_attraction and move
+            for j in range(n):
+                node_id = self.layout_ids[j]
+                node_f = f[3*j : 3*j+2]
+                node_x = x[3*j : 3*j+2]
+                
+                # #hooke_attraction
+                # for following_id in self.G.neighbors(node_id):
+                #     following_idx = self.id_to_idx_map[following_id]
+                #     following_x = x[3*following_idx : 3*following_idx+2]
+                #     delta_x = following_x - node_x
+                #     node_f += delta_x * np.log(1 + np.linalg.norm(delta_x)) * attractive_force_scaler
+                    
+                #move
+                norm_f = np.linalg.norm(node_f)
+                energy_status_msg += norm_f
+                if norm_f < EPS:
+                    delta_x = 0
+                else:
+                    delta_x = node_f / np.sqrt(norm_f)
+                #print node_f, norm_f, delta_x
+                x[3*j : 3*j+2] += delta_x
+                
+            #clear spent force 
+            f = np.zeros(3*n)
+        
+        print "iteration %s of %s -- energy: %s" % (i, iterations, energy_status_msg)
+        self.set_reduction_coordinates(x)
         
     def reduce_with_linloglayout(self):
-        
         print "reduce_with_linloglayout"
         input_file = open(self.input_file_path, 'w')
-        for follower, followies in self.follower_followies_map.items():
-            for followie in followies:
-                if followie in self.follower_followies_map:
-                    input_file.write('%s %s \n' % (follower, followie))
-        input_file.close()
+        for node_id in self.layout_ids:
+            for following_id in self.G.neighbors(node_id):
+                input_file.write('%s %s \n' % (node_id, following_id))
         
+        input_file.close()
         #to recompile
         #$javac -d ../bin LinLogLayout.java
         os.system('cd %s; java -cp bin LinLogLayout 2 %s %s;' % (
             self.linloglayout_dir,
             self.input_file_name,
             self.output_file_name
-        ))    
+        ))
     
     def load_linloglayout_from_file(self):
-        
         print "load_linloglayout_from_file"
         f = open(self.output_file_path)
-        self.linloglayout_reduction = []
-        self.linloglayout_ids = []
         for line in f:
             line_pieces = line.split(' ')
             id = line_pieces[0]
-            if id in self.linloglayout_ids:
-                raise Exception('This shouldnt happen.')
-            self.linloglayout_ids.append(id)
             x_value = float(line_pieces[1])
             y_value = float(line_pieces[2])
-            self.linloglayout_reduction.append([x_value, y_value])
-        self.linloglayout_reduction = np.array(self.linloglayout_reduction)
-        self.linloglayout_reduction = self.linloglayout_reduction + abs(np.min(self.linloglayout_reduction)) + 20
-        self.linloglayout_reduction = (self.linloglayout_reduction / np.max(self.linloglayout_reduction))
-    
-    def find_kmeans_clusters(self, n_clusters=20):
-        self.n_clusters = n_clusters
-        k_means = KMeans(init='k-means++', k=self.n_clusters)
-        k_means.fit(self.linloglayout_reduction)
-        self.linloglayout_cluster_centers = k_means.cluster_centers_
-        neigh = NearestNeighbors(n_neighbors=len(self.linloglayout_ids))
-        neigh.fit(self.linloglayout_reduction) 
-        neigh_results = neigh.kneighbors(self.linloglayout_cluster_centers)
-        #neigh_results is a 2-tuple, first data structure is distances, second is the label index
-        tmp_linloglayout_clusters = defaultdict(list)
-        for i in range(self.n_clusters):
-            neigh_scores = 1 - (neigh_results[0][i] / np.max(neigh_results[0][i]))
-            zoom = .95
-            neigh_scores = (neigh_scores >= zoom) * neigh_scores
-            neigh_scores = (neigh_scores-zoom) * 1/(1-zoom)
-            for j in range(len(self.linloglayout_ids)):
-                id_idx = neigh_results[1][i][j]
-                id_score = neigh_scores[j]
-                tmp_linloglayout_clusters[self.linloglayout_ids[id_idx]].append(id_score)
-        self.linloglayout_clusters = []
-        for id in self.linloglayout_ids:
-            self.linloglayout_clusters.append(tmp_linloglayout_clusters[id])
-        self.linloglayout_clusters = np.array(self.linloglayout_clusters)
-                
-    def find_linloglayout_similarities(self):
-        self.linloglayout_similarities = distance.squareform(distance.pdist(self.linloglayout_reduction))
-        self.linloglayout_similarities = 1 - (self.linloglayout_similarities / np.max(self.linloglayout_similarities))
+            self.reduction.append([x_value, y_value])
+        self.reduction = np.array(self.reduction)
+        self.normalize_reduction()
         
-    def find_dbscan_clusters(self, eps=0.65, min_samples=15):
+    def find_layout_similarities(self):
+        self.layout_similarities = distance.squareform(distance.pdist(self.reduction))
+        self.layout_similarities = 1 - (self.layout_similarities / np.max(self.layout_similarities))
         
-        self.find_linloglayout_similarities()
-        db = DBSCAN().fit(self.linloglayout_similarities, eps=eps, min_samples=min_samples)
+    def find_dbscan_clusters(self, eps=0.05, min_samples=12):
+        self.layout_clusters = []
+        self.find_layout_similarities()
+        #db = DBSCAN().fit(self.layout_similarities, eps=eps, min_samples=min_samples)
+        db = DBSCAN().fit(self.reduction, eps=eps, min_samples=min_samples)
         core_samples = db.core_sample_indices_
         labels = db.labels_
         self.n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
-        
-        tmp_linloglayout_clusters = defaultdict(lambda: [0] * self.n_clusters)
+        tmp_layout_clusters = defaultdict(lambda: [0] * self.n_clusters)
         for i in range(len(labels)):
-            id = self.linloglayout_ids[i]
+            id = self.layout_ids[i]
             group_index = int(labels[i])
             if group_index != -1:
-                tmp_linloglayout_clusters[id][group_index] = 1
-        self.linloglayout_clusters = []
-        for id in self.linloglayout_ids:
-            self.linloglayout_clusters.append(tmp_linloglayout_clusters[id])
-        self.linloglayout_clusters = np.array(self.linloglayout_clusters)
+                tmp_layout_clusters[id][group_index] = 1
+        for id in self.layout_ids:
+            self.layout_clusters.append(tmp_layout_clusters[id])
+        self.layout_clusters = np.array(self.layout_clusters)
+        
+    def find_mean_shift_clusters(self):
+        self.layout_clusters = []
+        bandwidth = estimate_bandwidth(self.reduction, quantile=0.2, n_samples=500)
+        ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
+        ms.fit(self.reduction)
+        labels = ms.labels_
+        cluster_centers = ms.cluster_centers_
+        self.n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+        tmp_layout_clusters = defaultdict(lambda: [0] * self.n_clusters)
+        for i in range(len(labels)):
+            id = self.layout_ids[i]
+            group_index = int(labels[i])
+            if group_index != -1:
+                tmp_layout_clusters[id][group_index] = 1
+        for id in self.layout_ids:
+            self.layout_clusters.append(tmp_layout_clusters[id])
+        self.layout_clusters = np.array(self.layout_clusters)
         
         
-    #def plot_linloglayout(self, width_inchs=6, height_inchs=6):
-        #fig = Figure(figsize=(width_inchs,height_inchs), dpi=100, frameon=False)
-        #canvas = FigureCanvas(fig)
-        ##add_axes takes [left, bottom, width, height]
-        #ax = fig.add_axes([0, 0, 1, 1])
-        #ax.axis('off')
-        #ax.xaxis.set_visible(False)
-        #ax.yaxis.set_visible(False)
-    
-        ##plot cluster centers if we have em
-        #if self.linloglayout_cluster_centers != None:
-            #for i in range(len(self.linloglayout_cluster_centers)):
-                #ax.plot(self.linloglayout_cluster_centers[i][0], self.linloglayout_cluster_centers[i][1], 'o', 
-                        #markersize=30, color='#E8E8E8', gid='cluster_%s' % str(i))        
         
-        ##plot the nodes
-        #for i in range(len(self.linloglayout_ids)):
-            #max_group_score = max(self.linloglayout_clusters[i])
-            #if max_group_score > 0:
-                #max_group_idx = None
-                #for j in range(len(self.linloglayout_clusters[i])):
-                    #if self.linloglayout_clusters[i][j] == max_group_score:
-                        #max_group_idx = j
-                #ax.plot(self.linloglayout_reduction[i][0], self.linloglayout_reduction[i][1], 'o', 
-                        #color=pl.cm.gray_r(max_group_idx * (300/self.n_clusters)), gid='node_%s_%s' % (max_group_idx, self.linloglayout_ids[i]))
-        
-        ##canvas.print_svg('../static/images/smarttypes_graph.svg', bbox_inches="tight", pad_inches=0)
-        ##canvas.print_figure('../static/images/smarttypes_graph.png', bbox_inches="tight", pad_inches=0)
         
         

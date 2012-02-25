@@ -1,9 +1,13 @@
+#!/usr/bin/python
 
-#twitter stuff
-CALLBACK = 'http://localhost:8282/my_account'
-CONSUMER_KEY = ''
-CONSUMER_SECRET = ''
+#boolean
+IS_PROD = False
 
-#database
+#database (string)
 DB_USER = ''
 DB_PASSWORD = ''
+
+#signin w/ twitter callback url and app creds
+CALLBACK = ''
+CONSUMER_KEY = ''
+CONSUMER_SECRET = ''
