@@ -156,7 +156,7 @@ class TwitterUser(PostgresBaseModel):
                 if following_following.following_ids and following_following.id not in unique_followers:
                     unique_followers.add(following_following.id)
                     follower_followies_map[following_following.id] = set(following_following.following_ids)
-        return follower_followies_map, list(unique_followers)
+        return follower_followies_map
 
     ##############################################
     ##group related stuff
