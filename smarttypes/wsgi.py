@@ -1,13 +1,13 @@
 
 import smarttypes
 import controllers
-from utils import email_utils
+from smarttypes.utils import email_utils
 import re
 import traceback
 from webob import Request
-from utils.web_response import WebResponse
-from utils.exceptions import RedirectException
-from utils.postgres_handle import PostgresHandle
+from smarttypes.utils.web_response import WebResponse
+from smarttypes.utils.exceptions import RedirectException
+from smarttypes.utils.postgres_handle import PostgresHandle
 from smarttypes.model.twitter_session import TwitterSession
 
 urls = [

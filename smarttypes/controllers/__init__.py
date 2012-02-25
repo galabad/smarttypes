@@ -2,9 +2,9 @@ import social_map  # need this
 import mimetypes
 import os
 from config import *
-from utils.exceptions import RedirectException
-from utils import twitter_api_utils
-from utils import validation_utils
+from smarttypes.utils.exceptions import RedirectException
+from smarttypes.utils import twitter_api_utils
+from smarttypes.utils import validation_utils
 
 
 def index(req, session, postgres_handle):

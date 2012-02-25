@@ -1,6 +1,6 @@
 
-# from utils.exceptions import RedirectException
-# from utils import validation_utils
+# from smarttypes.utils.exceptions import RedirectException
+# from smarttypes.utils import validation_utils
 # from genshi.core import Markup
 # from genshi import HTML
 from smarttypes.model.twitter_group import TwitterGroup

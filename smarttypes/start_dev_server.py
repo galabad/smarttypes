@@ -13,7 +13,7 @@ class CustomRequestHandler(WSGIRequestHandler):
 
 def start_app():
     from wsgi import application
-    from utils import web_monitor
+    from smarttypes.utils import web_monitor
     web_monitor.start(interval=1.0)
     project_path = os.path.dirname(os.path.abspath(__file__))
     web_monitor.track(project_path + '/templates/')

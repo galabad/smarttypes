@@ -1,7 +1,7 @@
 
 # import smarttypes
 # from config import *
-from utils import time_utils
+from smarttypes.utils import time_utils
 
 from datetime import datetime
 import psycopg2
