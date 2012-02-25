@@ -1,6 +1,4 @@
 
-# import smarttypes
-# from config import *
 from smarttypes.utils import time_utils
 
 from datetime import datetime

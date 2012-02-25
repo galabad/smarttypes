@@ -1,6 +1,6 @@
 
 import tweepy
-from config import *
+from smarttypes.config import *
 from smarttypes.utils import email_utils
 from smarttypes.model.twitter_session import TwitterSession
 from smarttypes.model.twitter_credentials import TwitterCredentials 

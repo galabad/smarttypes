@@ -2,7 +2,7 @@
 
 from smarttypes.model.postgres_base_model import PostgresBaseModel
 import tweepy
-from config import *
+from smarttypes.config import *
 # from smarttypes import model
 from smarttypes.utils import email_utils
 
