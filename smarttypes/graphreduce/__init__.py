@@ -133,7 +133,7 @@ class GraphReduce(object):
 
         #impt params
         iterations = 100
-        attractive_force_factor = .005
+        attractive_force_factor = .00005
         repulsive_force_factor = 20
         potential_force_factor = 1
         start_cooling_after_percent_done = .8
@@ -160,7 +160,7 @@ class GraphReduce(object):
         energy_status_msg = 0
         for i in range(iterations):
             #cooling
-            if iterations > cooling_start:
+            if i > cooling_start:
                 cooling_factor = 1 - ((i - cooling_start) / (iterations - cooling_start))
                 q = (np.ones(n) / node_degrees) * repulsive_force_factor * cooling_factor
 
