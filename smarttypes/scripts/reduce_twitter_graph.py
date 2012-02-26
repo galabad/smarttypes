@@ -3,7 +3,7 @@ from smarttypes.graphreduce import GraphReduce
 #from datetime import datetime, timedelta
 #from collections import defaultdict
 import networkx
-import pickle
+#import pickle
 import smarttypes
 from smarttypes.utils.postgres_handle import PostgresHandle
 from smarttypes.model.twitter_user import TwitterUser
@@ -17,35 +17,35 @@ def reduce_graph(screen_name, distance=20, min_followers=60,
 
     postgres_handle = PostgresHandle(smarttypes.connection_string)
 
-    if just_load_from_file:
-        print "Loading data from a pickle."
-        gr = GraphReduce(screen_name, {})
-        f = open(gr.pickle_file_path)
-        twitter_reduction, groups = pickle.load(f)
-        twitter_reduction.id = None
-        twitter_reduction.postgres_handle = postgres_handle
-        twitter_reduction.save()
-        postgres_handle.connection.commit()
-        for group in groups:
-            group.id = None
-            group.reduction_id = twitter_reduction.id
-            group.postgres_handle = postgres_handle
-            group.save()
-            postgres_handle.connection.commit()
-        TwitterGroup.mk_tag_clouds(twitter_reduction.id, postgres_handle)
-        postgres_handle.connection.commit()
-        print "All done!"
-        return 0
+    # if just_load_from_file:
+    #     print "Loading data from a pickle."
+    #     gr = GraphReduce(screen_name, {})
+    #     f = open(gr.pickle_file_path)
+    #     twitter_reduction, groups = pickle.load(f)
+    #     twitter_reduction.id = None
+    #     twitter_reduction.postgres_handle = postgres_handle
+    #     twitter_reduction.save()
+    #     postgres_handle.connection.commit()
+    #     for group in groups:
+    #         group.id = None
+    #         group.reduction_id = twitter_reduction.id
+    #         group.postgres_handle = postgres_handle
+    #         group.save()
+    #         postgres_handle.connection.commit()
+    #     TwitterGroup.mk_tag_clouds(twitter_reduction.id, postgres_handle)
+    #     postgres_handle.connection.commit()
+    #     print "All done!"
+    #     return 0
 
     ########################
     ##reduce
     ########################
     root_user = TwitterUser.by_screen_name(screen_name, postgres_handle)
-    follower_followies_map = root_user.get_graph_info(distance=distance, min_followers=min_followers)
+    follower_followies_map = root_user.get_graph_info(distance=distance,
+        min_followers=min_followers)
     gr = GraphReduce(screen_name, follower_followies_map)
-    #gr.reduce_with_exafmm()
-    gr.reduce_with_linloglayout()
-    gr.load_linloglayout_from_file()
+    gr.reduce_with_exafmm()
+    #gr.reduce_with_linloglayout()
 
     ########################
     ##save reduction in db
@@ -61,12 +61,6 @@ def reduce_graph(screen_name, distance=20, min_followers=60,
     twitter_reduction = TwitterReduction.create_reduction(root_user_id, user_ids,
         x_coordinates, y_coordinates, postgres_handle)
     postgres_handle.connection.commit()
-
-    ########################
-    ##create groups
-    ########################
-    gr.find_dbscan_clusters()
-    #gr.find_mean_shift_clusters()
 
     ########################
     ##save groups in db
@@ -105,16 +99,16 @@ def reduce_graph(screen_name, distance=20, min_followers=60,
     TwitterGroup.mk_tag_clouds(twitter_reduction.id, postgres_handle)
     postgres_handle.connection.commit()
 
-    ########################
-    ##pickle it
-    ########################
-    if pickle_it:
-        delattr(twitter_reduction, 'postgres_handle')
-        for group in groups:
-            delattr(group, 'postgres_handle')
-        dump_this = (twitter_reduction, groups)
-        f = open(gr.pickle_file_path, 'w')
-        pickle.dump(dump_this, f)
+    # ########################
+    # ##pickle it
+    # ########################
+    # if pickle_it:
+    #     delattr(twitter_reduction, 'postgres_handle')
+    #     for group in groups:
+    #         delattr(group, 'postgres_handle')
+    #     dump_this = (twitter_reduction, groups)
+    #     f = open(gr.pickle_file_path, 'w')
+    #     pickle.dump(dump_this, f)
 
 
 if __name__ == "__main__":

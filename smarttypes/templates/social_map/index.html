@@ -14,17 +14,11 @@
     
     <script type="text/javascript" >
         $(document).ready(function(){
-            var num_groups = ${num_groups};
             var reduction_id = ${reduction.id};
+            var num_groups = ${num_groups};
             load_social_map(reduction_id, num_groups);
-            
-            $("select#root_user_selector").change(function(){
-                  var user_id = $("select#root_user_selector option:selected").val();
-                  window.location = '/social_map?user_id=' + user_id;
-            });
-
-            
-            
+            bind_root_user_selector_change();
+            bind_next_or_prev_reduction_click();
         });
     </script>
     
@@ -33,6 +27,7 @@
 <body>
 
     <div style="width:900px; margin:0 auto;">
+
         <div style="float:left; width:350px;margin:0;padding:0 30px 0 0;">        
             <select id="root_user_selector" style="padding:2px 5px;">
                 <option py:if="iter_user.id == root_user.id" 
@@ -48,14 +43,30 @@
             <div id="group_details" style="margin:10px 0 0 10px;">&nbsp;</div>
         </div>
         
-        <div id="map_data" style="float:left; width:500px;margin:0;padding:0;">
+        <div style="float:left; width:500px;margin:0;padding:0;">
+            <!--<div>Reduction created: ${reduction.createddate.strftime('%b %d %H:%M:%S')}</div>-->
+
+            <div>
+                <div style="float:left;">
+                    <a class="next_or_prev_reduction" id="prev_reduction" href="#">Prev Reduction</a>
+                </div>
+                <div style="float:right;">
+                    <a class="next_or_prev_reduction" id="next_reduction" href="#">Next Reduction</a>
+                </div>
+            </div>
+
+            <div id="map_data"></div>
+
             <div id="spinner" style="margin:200px auto 0 200px;">
                 <img style="padding:0;" src="/static/images/spinner.gif" alt="spinner"/>
             </div>
             &nbsp;
         </div>
+
         <div class="clear"></div>
+
     </div>
+
 </body>                                    
 </html>
 

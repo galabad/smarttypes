@@ -2,13 +2,10 @@
 import os
 from collections import defaultdict
 import numpy as np
-from scipy.spatial import distance
 from sklearn.cluster import DBSCAN, MeanShift, estimate_bandwidth
 import networkx
-from networkx.drawing import layout
 
 import ctypes
-solver = ctypes.CDLL("/home/timmyt/projects/smarttypes/smarttypes/graphreduce/libcoulomb.so")
 
 EPS = 1e-6
 EPS2 = 0
@@ -17,6 +14,7 @@ EPS2 = 0
 class GraphReduce(object):
 
     def __init__(self, reduction_id, initial_follower_followies_map):
+
         self.reduction_id = reduction_id
         self.initial_follower_followies_map = initial_follower_followies_map
         self.G = self.get_networkx_graph()
@@ -24,7 +22,6 @@ class GraphReduce(object):
 
         self.reduction = []
         self.layout_clusters = []
-        self.layout_similarities = None
 
         self.layout_ids = []
         self.id_to_idx_map = {}
@@ -34,14 +31,23 @@ class GraphReduce(object):
             self.id_to_idx_map[node_id] = i
             i += 1
 
-        ##linloglayout file paths
-        self.linloglayout_dir = '/home/timmyt/projects/smarttypes/smarttypes/graphreduce/LinLogLayout'
-        self.input_file_name = 'io/%s_input.txt' % self.reduction_id
-        self.output_file_name = 'io/%s_output.txt' % self.reduction_id
-        self.pickle_file_name = 'io/%s.pickle' % self.reduction_id
-        self.input_file_path = '%s/%s' % (self.linloglayout_dir, self.input_file_name)
-        self.output_file_path = '%s/%s' % (self.linloglayout_dir, self.output_file_name)
-        self.pickle_file_path = '%s/%s' % (self.linloglayout_dir, self.pickle_file_name)
+        ##file paths
+        self.graphreduce_dir = os.path.dirname(os.path.abspath(__file__))
+        self.graphreduce_io_dir = '%s/io' % self.graphreduce_dir
+        if not os.path.exists(self.graphreduce_io_dir):
+            os.makedirs(self.graphreduce_io_dir)
+        self.reduction_file_name = 'reduction_%s.txt' % self.reduction_id
+        self.reduction_file_path = '%s/%s' % (self.graphreduce_io_dir, self.reduction_file_name)
+        self.linloglayout_input_file_name = 'linloglayout_input_%s.txt' % self.reduction_id
+        self.linloglayout_input_file_path = '%s/%s' % (self.graphreduce_io_dir,
+            self.linloglayout_input_file_name)
+
+        #load last reduction if it's there
+        if os.path.exists(self.reduction_file_path):
+            self.load_reduction_from_file()
+
+        #exafmm_solver
+        self.exafmm_solver = ctypes.CDLL("%s/libcoulomb.so" % self.graphreduce_dir)
 
     def get_networkx_graph(self):
         if not '_G' in self.__dict__:
@@ -54,7 +60,17 @@ class GraphReduce(object):
             self._G.add_edges_from(edges)
         return self._G
 
-    def normalize_reduction(self, num_of_standard_deviations=1.0):
+    def load_reduction_from_file(self):
+        f = open(self.reduction_file_path)
+        list_of_coordinates = []
+        for line in f:
+            line_pieces = line.split(' ')
+            x_value = float(line_pieces[1])
+            y_value = float(line_pieces[2])
+            list_of_coordinates.append([x_value, y_value])
+        self.reduction = np.array(list_of_coordinates)
+
+    def normalize_reduction(self, num_of_standard_deviations=1.25):
         r_min = np.min(self.reduction, axis=0)
         min_x = r_min[0]
         min_y = r_min[1]
@@ -68,30 +84,46 @@ class GraphReduce(object):
             r_mean, r_standard_deviation, num_of_standard_deviations)
         self.reduction /= r_mean + (r_standard_deviation * num_of_standard_deviations)
 
-    def set_reduction_coordinates(self, coordinates):
-        self.reduction = []
-        for i in range(self.G.number_of_nodes()):
-            #id = self.layout_ids[i]
-            x_cord = coordinates[i * 3]
-            y_cord = coordinates[i * 3 + 1]
-            self.reduction.append([x_cord, y_cord])
-        self.reduction = np.array(self.reduction)
+    def reduce_with_linloglayout(self):
+        input_file = open(self.linloglayout_input_file_path, 'w')
+        for node_id in self.layout_ids:
+            for following_id in self.G.neighbors(node_id):
+                input_file.write('%s %s \n' % (node_id, following_id))
+        input_file.close()
+        #to recompile
+        #$javac -d ../bin LinLogLayout.java
+        os.system('cd %s/LinLogLayout; java -cp bin LinLogLayout 2 %s %s;' % (
+            self.graphreduce_dir,
+            self.linloglayout_input_file_path,
+            self.reduction_file_path
+        ))
+        self.load_reduction_from_file()
         self.normalize_reduction()
         self.find_dbscan_clusters()
-        #self.find_mean_shift_clusters()
-
-    def reduce_with_fruchterman_reingold(self):
-        return_dict = layout.fruchterman_reingold_layout(self.G)
-        for id in return_dict:
-            self.reduction.append([return_dict[id][0], return_dict[id][1]])
-        self.reduction = np.array(self.reduction)
-        self.normalize_reduction()
 
     def reduce_with_exafmm(self):
+        #helper functions specific to this method
+        def x_to_reduction(x):
+            list_of_coordinates = []
+            for i in range(self.G.number_of_nodes()):
+                x_cord = x[i * 3]
+                y_cord = x[i * 3 + 1]
+                list_of_coordinates.append([x_cord, y_cord])
+            self.reduction = np.array(list_of_coordinates)
+
+        def reduction_to_x():
+            x = []
+            for row in self.reduction:
+                x.append(row[0])
+                x.append(row[1])
+                x.append(0)  # exafmm is 3d
+            return np.array(x)
+
         n = self.G.number_of_nodes()
         A = networkx.to_numpy_matrix(self.G)
-        A = np.asarray(A)
+        A = np.asarray(A)  # adjacency matrix
 
+        #node_degrees and sanity check
         node_degrees = A.sum(axis=1) + 1
         for i in range(n):
             node_id = self.layout_ids[i]
@@ -99,37 +131,42 @@ class GraphReduce(object):
             if node_degree != node_degrees[i] - 1:
                 raise Exception('This is not good. This should not happen.')
 
-        iterations = 500
-        attractive_force_factor = .00005
-        repulsive_force_factor = 3
+        #impt params
+        iterations = 100
+        attractive_force_factor = .005
+        repulsive_force_factor = 20
         potential_force_factor = 1
+        start_cooling_after_percent_done = .8
+        cooling_start = iterations * start_cooling_after_percent_done
+        print cooling_start
 
-        x = np.random.random(3 * n) * 20  # coordinates
-        x[2::3] = 0  # set z to 0 for 2d
+        #coordinates
+        if len(self.reduction):
+            x = reduction_to_x() * 20
+        else:
+            x = np.random.random(3 * n) * 20
+        x[2::3] = 0  # make sure z is 0 for 2d
         q = (np.ones(n) / node_degrees) * repulsive_force_factor  # charges
         p = np.ones(n) * potential_force_factor  # potential
         f = np.zeros(3 * n)  # force
 
-        print "iterations: %s -- attractive_force_factor: %s -- repulsive_force_factor: %s -- potential_force_factor: %s\n" % (
-            iterations, attractive_force_factor, repulsive_force_factor, potential_force_factor)
+        print "starting reduce_with_exafmm \
+               iterations: %s -- attractive_force_factor: %s -- \
+               repulsive_force_factor: %s -- potential_force_factor: %s\n" % (
+            iterations, attractive_force_factor,
+            repulsive_force_factor, potential_force_factor)
 
-        cooling_factor = 0
+        cooling_factor = 1
         energy_status_msg = 0
         for i in range(iterations):
-            if i % 50 == 0:
-                self.set_reduction_coordinates(x)
-                print "iteration %s of %s -- energy: %s -- groups: %s -- cooling: %s" % (i,
-                    iterations, energy_status_msg if energy_status_msg else '?',
-                    self.n_clusters,
-                    cooling_factor)
-                energy_status_msg = 0
-
-            #start cooling
-            if float(i) / iterations > .50:
-                cooling_factor = 1 - (float(i) / iterations)
+            #cooling
+            if iterations > cooling_start:
+                cooling_factor = 1 - ((i - cooling_start) / (iterations - cooling_start))
                 q = (np.ones(n) / node_degrees) * repulsive_force_factor * cooling_factor
 
-            solver.FMMcalccoulomb(n, x.ctypes.data, q.ctypes.data, p.ctypes.data, f.ctypes.data, 0)
+            #repulsion
+            self.exafmm_solver.FMMcalccoulomb(n, x.ctypes.data, q.ctypes.data,
+                p.ctypes.data, f.ctypes.data, 0)
 
             #hooke_attraction and move
             for j in range(n):
@@ -157,45 +194,25 @@ class GraphReduce(object):
             #clear spent force
             f = np.zeros(3 * n)
 
-        print "iteration %s of %s -- energy: %s" % (i, iterations, energy_status_msg)
-        self.set_reduction_coordinates(x)
+            #status msg
+            if i % 1 == 0:
+                x_to_reduction(x)
+                self.normalize_reduction()
+                self.find_dbscan_clusters()
+                print "iteration %s of %s -- energy: %s -- groups: %s -- cooling: %s" % (
+                    i, iterations,
+                    energy_status_msg if energy_status_msg else '?',
+                    self.n_clusters,
+                    cooling_factor)
+                energy_status_msg = 0
 
-    def reduce_with_linloglayout(self):
-        print "reduce_with_linloglayout"
-        input_file = open(self.input_file_path, 'w')
-        for node_id in self.layout_ids:
-            for following_id in self.G.neighbors(node_id):
-                input_file.write('%s %s \n' % (node_id, following_id))
-
-        input_file.close()
-        #to recompile
-        #$javac -d ../bin LinLogLayout.java
-        os.system('cd %s; java -cp bin LinLogLayout 2 %s %s;' % (
-            self.linloglayout_dir,
-            self.input_file_name,
-            self.output_file_name
-        ))
-
-    def load_linloglayout_from_file(self):
-        print "load_linloglayout_from_file"
-        f = open(self.output_file_path)
-        for line in f:
-            line_pieces = line.split(' ')
-            #id = line_pieces[0]
-            x_value = float(line_pieces[1])
-            y_value = float(line_pieces[2])
-            self.reduction.append([x_value, y_value])
-        self.reduction = np.array(self.reduction)
+        #all done
+        x_to_reduction(x)
         self.normalize_reduction()
-
-    def find_layout_similarities(self):
-        self.layout_similarities = distance.squareform(distance.pdist(self.reduction))
-        self.layout_similarities = 1 - (self.layout_similarities / np.max(self.layout_similarities))
+        self.find_dbscan_clusters()
 
     def find_dbscan_clusters(self, eps=0.05, min_samples=12):
         self.layout_clusters = []
-        self.find_layout_similarities()
-        #db = DBSCAN().fit(self.layout_similarities, eps=eps, min_samples=min_samples)
         db = DBSCAN().fit(self.reduction, eps=eps, min_samples=min_samples)
         labels = db.labels_
         self.n_clusters = len(set(labels)) - (1 if -1 in labels else 0)

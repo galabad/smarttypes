@@ -1,4 +1,5 @@
 
+import os
 import pickle
 from datetime import datetime
 import numpy as np
@@ -16,3 +17,4 @@ from smarttypes.model.twitter_credentials import TwitterCredentials
 #api_handle = model_user.credentials.api_handle
 #api_user = api_handle.get_user(screen_name='SmartTypes')
 
+print os.path.dirname(os.path.abspath(__file__))

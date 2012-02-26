@@ -1,7 +1,5 @@
+
 from smarttypes.model.postgres_base_model import PostgresBaseModel
-from datetime import datetime, timedelta
-from smarttypes.utils import time_utils, text_parsing
-import re, string, heapq, random, collections, numpy
 
 
 class TwitterReduction(PostgresBaseModel):
@@ -17,17 +15,6 @@ class TwitterReduction(PostgresBaseModel):
         'group_scores'
     ]
     table_defaults = {}
-
-    def get_user_coordinates(self):
-        return_dict = {}
-        for i in range(len(self.user_ids)):
-            user_id = self.user_ids[i]
-            x = self.x_coordinates[i]
-            y = self.y_coordinates[i]
-            if user_id in return_dict:
-                raise Exception('This shouldnt happen.')
-            return_dict[user_id] = (x, y)
-        return return_dict
 
     def get_groups(self):
         from smarttypes.model.twitter_group import TwitterGroup
@@ -84,6 +71,20 @@ class TwitterReduction(PostgresBaseModel):
             return cls(postgres_handle=postgres_handle, **results[0])
         else:
             return None
+
+    @classmethod
+    def get_ordered_id_list(cls, root_user_id, postgres_handle):
+        qry = """
+        select id
+        from twitter_reduction
+        where root_user_id = %(root_user_id)s
+        order by createddate asc;
+        """
+        return_list = []
+        params = {'root_user_id': root_user_id}
+        for result in postgres_handle.execute_query(qry, params):
+            return_list.append(result['id'])
+        return return_list
 
     @classmethod
     def get_users_with_a_reduction(cls, postgres_handle):

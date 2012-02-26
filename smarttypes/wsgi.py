@@ -22,6 +22,7 @@ urls = [
     (r'^social_map/?$', controllers.social_map.index),
     (r'^social_map/map_data.json', controllers.social_map.map_data),
     (r'^social_map/ajax_group/?$', controllers.social_map.ajax_group),
+    (r'^social_map/next_or_previous_reduction_id', controllers.social_map.next_or_previous_reduction_id),
 
     (r'^contact/?$', controllers.contact),
 

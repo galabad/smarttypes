@@ -34,15 +34,51 @@ def index(req, session, postgres_handle):
     }
 
 
+def next_or_previous_reduction_id(req, session, postgres_handle):
+
+    reduction = None
+    if 'reduction_id' in req.params:
+        try:
+            reduction_id = int(req.params['reduction_id'])
+        except ValueError:
+            reduction_id = -1
+        reduction = TwitterReduction.get_by_id(reduction_id, postgres_handle)
+
+    #prev / next reduction
+    new_reduction_id = -1
+    if reduction and 'next_or_previous' in req.params:
+        if req.params['next_or_previous'] in ['prev_reduction', 'next_reduction']:
+            ordered_reduction_list = TwitterReduction.get_ordered_id_list(
+                reduction.root_user_id, postgres_handle)
+            for i in range(len(ordered_reduction_list)):
+                if reduction.id == ordered_reduction_list[i]:
+                    current_idx = i
+                    break
+            if req.params['next_or_previous'] == 'prev_reduction':
+                idx = current_idx - 1
+            if req.params['next_or_previous'] == 'next_reduction':
+                idx = current_idx + 1
+            new_reduction_id = ordered_reduction_list[idx]
+
+    return {
+        'content_type': 'application/json',
+        'json': {
+            'reduction_id': new_reduction_id,
+            'num_groups': len(TwitterGroup.all_groups(new_reduction_id, postgres_handle))
+        }
+    }
+
+
 def map_data(req, session, postgres_handle):
     reduction = None
     if 'reduction_id' in req.params:
         try:
             reduction_id = int(req.params['reduction_id'])
         except ValueError:
-            reduction_id = 0
+            reduction_id = -1
         reduction = TwitterReduction.get_by_id(reduction_id, postgres_handle)
 
+    #details
     reduction_details = []
     if reduction:
         return_all = not smarttypes.config.IS_PROD  # for debugging
