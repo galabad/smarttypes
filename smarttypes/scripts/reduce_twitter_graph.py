@@ -117,6 +117,6 @@ if __name__ == "__main__":
         root_user = creds.root_user
         if root_user and root_user.screen_name == 'SmartTypes':
             #distance = int(400 / (root_user.following_count / 100.0))
-            distance = 25
+            distance = 75
             reduce_graph(root_user.screen_name, distance=distance, min_followers=60,
                 pickle_it=False, just_load_from_file=False)

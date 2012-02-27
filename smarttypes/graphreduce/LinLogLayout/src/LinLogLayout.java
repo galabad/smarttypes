@@ -180,15 +180,13 @@ public class LinLogLayout {
      * @param nodeToPosition map from each node to its cluster.
 	 * @param filename name of the file to write into.
 	 */
-	private static void writePositions(Map<Node,double[]> nodeToPosition, 
-            Map<Node,Integer>nodeToCluster, String filename) {
+	private static void writePositions(Map<Node,double[]> nodeToPosition, String filename) {
 		try {
 			BufferedWriter file = new BufferedWriter(new FileWriter(filename));
 			for (Node node : nodeToPosition.keySet()) {
 				double[] position = nodeToPosition.get(node);
-                int cluster = nodeToCluster.get(node);
 				file.write(node.name + " " + position[0] + " " + position[1] 
-                                     + " " + position[2] + " " + cluster);
+                                     + " " + position[2]);
                 file.write("\n");
 			}
 			file.close();
@@ -237,8 +235,8 @@ public class LinLogLayout {
 		//new MinimizerBarnesHut(nodes, edges, -1.0, 2.0, 0.05).minimizeEnergy(nodeToPosition, 100);
 		new MinimizerBarnesHut(nodes, edges, 0.0, 1.0, 0.05).minimizeEnergy(nodeToPosition, 100);
         // see class OptimizerModularity for a description of the parameters
-        Map<Node,Integer> nodeToCluster = new OptimizerModularity().execute(nodes, edges, false);
-		writePositions(nodeToPosition, nodeToCluster, args[2]);
+        //Map<Node,Integer> nodeToCluster = new OptimizerModularity().execute(nodes, edges, false);
+		writePositions(nodeToPosition, args[2]);
 		//(new GraphFrame(nodeToPosition, nodeToCluster)).setVisible(true);
 	}
 

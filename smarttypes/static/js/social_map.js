@@ -12,7 +12,7 @@ var load_social_map = function(reduction_id, num_groups){
 
     reduction_href = '/social_map/map_data.json?reduction_id='+reduction_id;
 
-    var coord_scale = d3.scale.linear().domain([0,1]).range([10,420]);
+    var coord_scale = d3.scale.linear().domain([-.25,1.25]).range([10,420]);
     var color_scale = d3.scale.linear().domain([-1,num_groups])
         .interpolate(d3.interpolateRgb)
         .range(["#cccccc", "#000000"]);

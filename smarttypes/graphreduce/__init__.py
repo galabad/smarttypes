@@ -70,19 +70,23 @@ class GraphReduce(object):
             list_of_coordinates.append([x_value, y_value])
         self.reduction = np.array(list_of_coordinates)
 
-    def normalize_reduction(self, num_of_standard_deviations=1.25):
-        r_min = np.min(self.reduction, axis=0)
-        min_x = r_min[0]
-        min_y = r_min[1]
-        if min_x < 0:
-            self.reduction[:, 0] += abs(min_x)
-        if min_y < 0:
-            self.reduction[:, 1] += abs(min_y)
+    def normalize_reduction(self):
+        # r_min = np.min(self.reduction, axis=0)
+        # min_x = r_min[0]
+        # min_y = r_min[1]
+        # if min_x < 0:
+        #     self.reduction[:, 0] += abs(min_x)
+        # if min_y < 0:
+        #     self.reduction[:, 1] += abs(min_y)
         r_mean = np.mean(self.reduction)
         r_standard_deviation = np.std(self.reduction)
-        print "mean: %s -- standard_deviation: %s -- num_of_standard_deviations: %s" % (
-            r_mean, r_standard_deviation, num_of_standard_deviations)
-        self.reduction /= r_mean + (r_standard_deviation * num_of_standard_deviations)
+        print "mean: %s -- standard_deviation: %s" % (
+            r_mean, r_standard_deviation)
+
+        #new_floor = r_mean - (r_standard_deviation * num_of_standard_deviations)
+        #self.reduction -= new_floor
+
+        self.reduction /= r_mean + r_standard_deviation
 
     def reduce_with_linloglayout(self):
         input_file = open(self.linloglayout_input_file_path, 'w')
@@ -91,7 +95,7 @@ class GraphReduce(object):
                 input_file.write('%s %s \n' % (node_id, following_id))
         input_file.close()
         #to recompile
-        #$javac -d ../bin LinLogLayout.java
+        #$ javac -d ../bin LinLogLayout.java
         os.system('cd %s/LinLogLayout; java -cp bin LinLogLayout 2 %s %s;' % (
             self.graphreduce_dir,
             self.linloglayout_input_file_path,
@@ -132,15 +136,30 @@ class GraphReduce(object):
                 raise Exception('This is not good. This should not happen.')
 
         #impt params
+        repuExponent = 0
+        attrExponent = 1
+        gravFactor = 0.05
+
+        #add all the edges
+        attrSum = np.sum(A)
+
+        #add all the nodes
+        repuSum = n
+
+        density = attrSum / repuSum / repuSum
+        repuFactor = density * np.power(repuSum, 0.5 * (attrExponent - repuExponent))
+        gravFactor = density * repuSum * np.power(gravFactor, attrExponent - repuExponent)
+
+        #impt params
         iterations = 100
-        attractive_force_factor = .00005
-        repulsive_force_factor = 20
-        potential_force_factor = 1
-        start_cooling_after_percent_done = .8
+        attractive_force_factor = 0.07
+        repulsive_force_factor = 2.0
+        potential_force_factor = 1.0
+        start_cooling_after_percent_done = 1
         cooling_start = iterations * start_cooling_after_percent_done
-        print cooling_start
 
         #coordinates
+        self.reduction = []
         if len(self.reduction):
             x = reduction_to_x() * 20
         else:
@@ -150,11 +169,8 @@ class GraphReduce(object):
         p = np.ones(n) * potential_force_factor  # potential
         f = np.zeros(3 * n)  # force
 
-        print "starting reduce_with_exafmm \
-               iterations: %s -- attractive_force_factor: %s -- \
-               repulsive_force_factor: %s -- potential_force_factor: %s\n" % (
-            iterations, attractive_force_factor,
-            repulsive_force_factor, potential_force_factor)
+        print "attractive_force_factor: %s -- repulsive_force_factor: %s -- potential_force_factor: %s\n" % (
+            attractive_force_factor, repulsive_force_factor, potential_force_factor)
 
         cooling_factor = 1
         energy_status_msg = 0
@@ -169,17 +185,25 @@ class GraphReduce(object):
                 p.ctypes.data, f.ctypes.data, 0)
 
             #hooke_attraction and move
+            attraction_repulsion_diff = []
             for j in range(n):
                 node_id = self.layout_ids[j]
                 node_f = f[3 * j: 3 * j + 2]
                 node_x = x[3 * j: 3 * j + 2]
 
                 #hooke_attraction
+                attraction_f = np.array([0.0, 0.0])
                 for following_id in self.G.neighbors(node_id):
                     following_idx = self.id_to_idx_map[following_id]
                     following_x = x[3 * following_idx: 3 * following_idx + 2]
                     delta_x = following_x - node_x
-                    node_f += delta_x * np.log(1 + np.linalg.norm(delta_x)) * attractive_force_factor
+                    norm_x = np.linalg.norm(delta_x)
+                    if norm_x > EPS:
+                        attraction_f += np.log(1 + norm_x) * delta_x * attractive_force_factor
+
+                attraction_repulsion_diff.append(np.linalg.norm(attraction_f) - np.linalg.norm(node_f))
+                #print attraction_f, node_f
+                node_f += attraction_f
 
                 #move
                 norm_f = np.linalg.norm(node_f)
@@ -199,11 +223,12 @@ class GraphReduce(object):
                 x_to_reduction(x)
                 self.normalize_reduction()
                 self.find_dbscan_clusters()
-                print "iteration %s of %s -- energy: %s -- groups: %s -- cooling: %s" % (
+                print "iteration %s of %s -- energy: %s -- groups: %s -- cooling: %s -- att-rep-diff: %s" % (
                     i, iterations,
                     energy_status_msg if energy_status_msg else '?',
                     self.n_clusters,
-                    cooling_factor)
+                    cooling_factor,
+                    np.median(attraction_repulsion_diff))
                 energy_status_msg = 0
 
         #all done

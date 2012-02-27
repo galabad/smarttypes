@@ -82,6 +82,7 @@ def map_data(req, session, postgres_handle):
     reduction_details = []
     if reduction:
         return_all = not smarttypes.config.IS_PROD  # for debugging
+        #return_all = False
         reduction_details = reduction.get_details(return_all=return_all)
 
     return {
