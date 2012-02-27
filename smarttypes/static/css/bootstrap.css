@@ -12,11 +12,13 @@
    margin-top:11px;
  }
 
- .sideSpacer{margin-right:10px;}
- .row-spacer {margin-top: 30px;}
+ .sideSpacer {margin-right:10px;}
+ .row-spacer {margin-top: 50px;}
+
+ .centerText {text-align:center;}
 
  .main {
-   margin-top:100px;
+   margin-top:50px;
  }
 article,
 aside,

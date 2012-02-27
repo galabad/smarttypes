@@ -72,28 +72,21 @@
   <div class="main">
     <div class="container">
       <div class="content">
+        <div class="row-spacer"></div>
             <!--crap from the child-->
         <div py:replace="select('*|text()')"></div>
-        <!-- <div class="clear"></div> -->
-
-        <div id="footer">
-          <table style="width:100%;">
-            <tr>          
-              <td style="width:33%;text-align:left;">
-                <a href="/blog" class="${'active' if active_tab == 'blog' else ''}">Blog</a>
-                  <!--<a href="http://groups.google.com/group/smarttypes" target="_blank">Mailing list</a>-->
-              </td>
-
-              <td style="width:33%;text-align:center;">
-                <a href="https://github.com/smarttypes/smarttypes" target="_blank">We're open</a>
-              </td>                
-                      
-              <td style="width:33%;text-align:right;">
-                <a class="${'active' if active_tab == 'contact' else ''}" href="/contact">Get in touch</a>
-              </td>
-            </tr>            
-          </table> 
-        </div> <!--end footer-->
+ 
+        <footer>
+          <div class="row">
+            <div class="row-spacer"></div>
+            <div class="span4 offset4">
+              <div class="centerText">
+                <a href="https://github.com/smarttypes/smarttypes">Our Open Source Projects</a>
+                <p>&copy; SmartTypes 2012</p>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   </div>
