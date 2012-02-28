@@ -24,7 +24,7 @@
 
 <body py:match="body" py:attrs="select('@*')">
 
-  <div class="navbar navbar-fixed-top">
+  <div class="navbar navbar-fixed-top" style="background-color:#ffffff;">
     <div class="navbar-inner">
       <div class="container">
 
@@ -54,14 +54,16 @@
           <li py:if="not logged_in_user">
             <a href="/sign_in" class="${'active' if active_tab == 'sign_in' else ''}">
               Sign in w/ twitter
+              <!--This is causing a spacing issue
               <img src="/static/images/twitter_16_gray.png" style="border:none;padding:0;" alt="twitter"/>
+              -->
             </a>
           </li>
           
           <li py:if="logged_in_user">
             <a href="/my_account" class="${'active' if active_tab == 'my_account' else ''}">
               ${logged_in_user.screen_name}
-              <img src="/static/images/twitter_16_gray.png" style="border:none;padding:0;" alt="twitter"/>
+              <!--<img src="/static/images/twitter_16_gray.png" style="border:none;padding:0;" alt="twitter"/>-->
             </a>
           </li>
         </ul>

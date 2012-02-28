@@ -44,8 +44,7 @@ def reduce_graph(screen_name, distance=20, min_followers=60,
     follower_followies_map = root_user.get_graph_info(distance=distance,
         min_followers=min_followers)
     gr = GraphReduce(screen_name, follower_followies_map)
-    gr.reduce_with_exafmm()
-    #gr.reduce_with_linloglayout()
+    gr.reduce_with_linloglayout()
 
     ########################
     ##save reduction in db
