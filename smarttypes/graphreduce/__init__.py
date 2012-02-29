@@ -135,7 +135,7 @@ class GraphReduce(object):
 
         #params
         iterations = 100
-        attractive_force_factor = 1.0
+        attractive_force_factor = .005
         repulsive_force_factor = 1.0
         potential_force_factor = 0.0
 
@@ -174,7 +174,7 @@ class GraphReduce(object):
                     delta_x = following_x - node_x
                     norm_x = np.linalg.norm(delta_x)
                     if norm_x > EPS:
-                        attraction_f += delta_x * np.log(1 + norm_x)
+                        attraction_f += delta_x * np.log(1 + norm_x) * attractive_force_factor
 
                 attraction_repulsion_diff.append(np.linalg.norm(attraction_f) - np.linalg.norm(node_f))
                 node_f += attraction_f
@@ -197,13 +197,14 @@ class GraphReduce(object):
                 x_to_reduction(x)
                 self.normalize_reduction()
                 self.find_dbscan_clusters()
-                print "iteration %s of %s -- energy: %s -- groups: %s -- cooling: %s -- att-rep-diff: %s" % (
+                print "iteration %s of %s -- energy: %s -- groups: %s -- att-rep-diff: %s" % (
                     i, iterations,
                     energy_status_msg if energy_status_msg else '?',
                     self.n_clusters,
-                    cooling_factor,
-                    np.median(attraction_repulsion_diff))
-                energy_status_msg = 0
+                    np.sum(attraction_repulsion_diff))
+
+            #clear energy status msg
+            energy_status_msg = 0
 
         #all done
         x_to_reduction(x)
