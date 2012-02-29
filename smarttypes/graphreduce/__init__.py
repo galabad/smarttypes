@@ -133,13 +133,11 @@ class GraphReduce(object):
                 raise Exception('This is not good. This should not happen.')
         #node_degrees /= np.max(node_degrees)
 
-        #impt params
+        #params
         iterations = 100
         attractive_force_factor = 1.0
         repulsive_force_factor = 1.0
         potential_force_factor = 0.0
-        start_cooling_after_percent_done = 1.0
-        cooling_start = iterations * start_cooling_after_percent_done
 
         #coordinates
         self.reduction = []
@@ -148,33 +146,27 @@ class GraphReduce(object):
         else:
             x = np.random.random(3 * n) * 100
         x[2::3] = 0  # make sure z is 0 for 2d
-        q = np.ones(n) * node_degrees #+ 1 #* repulsive_force_factor  # charges
+        q = np.ones(n) * node_degrees * repulsive_force_factor  # charges
         p = np.ones(n) * potential_force_factor  # potential
         f = np.zeros(3 * n)  # force
 
         print "attractive_force_factor: %s -- repulsive_force_factor: %s -- potential_force_factor: %s\n" % (
             attractive_force_factor, repulsive_force_factor, potential_force_factor)
 
-        cooling_factor = 1
         energy_status_msg = 0
         for i in range(iterations):
-            #cooling
-            if i > cooling_start:
-                cooling_factor = 1 - ((i - cooling_start) / (iterations - cooling_start))
-                q = (np.ones(n) / node_degrees) * repulsive_force_factor * cooling_factor
-
             #repulsion
             self.exafmm_solver.FMMcalccoulomb(n, x.ctypes.data, q.ctypes.data,
                 p.ctypes.data, f.ctypes.data, 0)
 
-            #hooke_attraction and move
+            #attraction and move
             attraction_repulsion_diff = []
             for j in range(n):
                 node_id = self.layout_ids[j]
                 node_f = f[3 * j: 3 * j + 2]
                 node_x = x[3 * j: 3 * j + 2]
 
-                #spring_attraction
+                #attraction
                 attraction_f = np.array([0.0, 0.0])
                 for following_id in self.G.neighbors(node_id):
                     following_idx = self.id_to_idx_map[following_id]
@@ -182,12 +174,9 @@ class GraphReduce(object):
                     delta_x = following_x - node_x
                     norm_x = np.linalg.norm(delta_x)
                     if norm_x > EPS:
-                        #attraction_f_delta = np.log(1 + (norm_x * delta_x))
-                        #attraction_f_delta[np.isnan(attraction_f_delta)] = 0
                         attraction_f += delta_x * np.log(1 + norm_x)
 
                 attraction_repulsion_diff.append(np.linalg.norm(attraction_f) - np.linalg.norm(node_f))
-                #print attraction_f, node_f
                 node_f += attraction_f
 
                 #move
