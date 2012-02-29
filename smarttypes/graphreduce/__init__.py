@@ -137,7 +137,7 @@ class GraphReduce(object):
         iterations = 100
         attractive_force_factor = 1.0
         repulsive_force_factor = 1.0
-        potential_force_factor = 1.0
+        potential_force_factor = 0.0
         start_cooling_after_percent_done = 1.0
         cooling_start = iterations * start_cooling_after_percent_done
 
@@ -148,7 +148,7 @@ class GraphReduce(object):
         else:
             x = np.random.random(3 * n) * 100
         x[2::3] = 0  # make sure z is 0 for 2d
-        q = np.ones(n) #* node_degrees #+ 1 #* repulsive_force_factor  # charges
+        q = np.ones(n) * node_degrees #+ 1 #* repulsive_force_factor  # charges
         p = np.ones(n) * potential_force_factor  # potential
         f = np.zeros(3 * n)  # force
 
@@ -182,9 +182,9 @@ class GraphReduce(object):
                     delta_x = following_x - node_x
                     norm_x = np.linalg.norm(delta_x)
                     if norm_x > EPS:
-                        attraction_f_delta = np.log(1 + (norm_x * delta_x))
-                        attraction_f_delta[np.isnan(attraction_f_delta)] = 0
-                        attraction_f += attraction_f_delta
+                        #attraction_f_delta = np.log(1 + (norm_x * delta_x))
+                        #attraction_f_delta[np.isnan(attraction_f_delta)] = 0
+                        attraction_f += delta_x * np.log(1 + norm_x)
 
                 attraction_repulsion_diff.append(np.linalg.norm(attraction_f) - np.linalg.norm(node_f))
                 #print attraction_f, node_f
