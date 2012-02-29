@@ -44,7 +44,8 @@ def reduce_graph(screen_name, distance=20, min_followers=60,
     follower_followies_map = root_user.get_graph_info(distance=distance,
         min_followers=min_followers)
     gr = GraphReduce(screen_name, follower_followies_map)
-    gr.reduce_with_linloglayout()
+    gr.reduce_with_exafmm()
+    #gr.reduce_with_linloglayout()
 
     ########################
     ##save reduction in db
@@ -116,6 +117,6 @@ if __name__ == "__main__":
         root_user = creds.root_user
         if root_user and root_user.screen_name == 'SmartTypes':
             #distance = int(400 / (root_user.following_count / 100.0))
-            distance = 75
+            distance = 20
             reduce_graph(root_user.screen_name, distance=distance, min_followers=60,
                 pickle_it=False, just_load_from_file=False)
