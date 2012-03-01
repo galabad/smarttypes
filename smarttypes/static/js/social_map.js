@@ -33,7 +33,14 @@ var load_social_map = function(reduction_id, num_groups){
             .attr("r", 3)
             .style("fill", function(d, i) { return color_scale(d.group_index); })
             .style("cursor", "pointer")
-            .on("click", function(d,i) { show_cluster(d.group_index, reduction_id); });
+            .on("click", function(d,i) { 
+                if (d.group_index < 0){
+                    show_node(d.id, reduction_id);
+                }
+                else{
+                    show_cluster(d.group_index, reduction_id);
+                }
+            });
         
         $('div#spinner').hide();
         global_old_group_index = -1;
@@ -42,6 +49,28 @@ var load_social_map = function(reduction_id, num_groups){
     });
 }
 
+var show_node = function(node_id, reduction_id){
+
+    //change the old color back
+    if (global_old_group_index != -1){
+        d3.selectAll('circle.group_' + global_old_group_index).style("fill", global_old_group_color);
+    }
+    global_old_group_index = -1;
+    global_old_group_color = "";
+    //d3.selectAll('circle.group_' + group_idx).style("fill", '#00FF00');
+    $('#current_group').html("blah");
+    $.ajax({type:"POST",
+            url:"/social_map/node_details",
+            cache:false,
+            data:{'node_id': node_id, 'reduction_id':reduction_id},
+            dataType:"html",
+            error:function(){},
+            success:function(html){
+                $('#group_details').html('');
+                $('#group_details').html(html);
+            }
+    });
+};
 
 var show_cluster = function(group_idx, reduction_id){
 
@@ -59,7 +88,7 @@ var show_cluster = function(group_idx, reduction_id){
     d3.selectAll('circle.group_' + group_idx).style("fill", '#00FF00');
     $('#current_group').html(group_idx + 1);
     $.ajax({type:"POST",
-            url:"/social_map/ajax_group",
+            url:"/social_map/group_details",
             cache:false,
             data:{'group_index': group_idx, 'reduction_id':reduction_id},
             dataType:"html",

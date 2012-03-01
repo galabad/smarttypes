@@ -92,8 +92,7 @@ def map_data(req, session, postgres_handle):
 
 #todo: return entire page for the search engines
 
-
-def ajax_group(req, session, postgres_handle):
+def group_details(req, session, postgres_handle):
     if 'group_index' in req.params and 'reduction_id' in req.params:
         reduction = TwitterReduction.get_by_id(req.params['reduction_id'], postgres_handle)
         group_index = int(req.params['group_index'])
@@ -101,6 +100,18 @@ def ajax_group(req, session, postgres_handle):
     else:
         twitter_group = None
     return {
-        'template_path': 'social_map/ajax_group.html',
+        'template_path': 'social_map/group_details.html',
         'twitter_group': twitter_group,
+    }
+
+def node_details(req, session, postgres_handle):
+    if 'node_id' in req.params and 'reduction_id' in req.params:
+        reduction = TwitterReduction.get_by_id(req.params['reduction_id'], postgres_handle)
+        twitter_user = TwitterUser.get_by_id(req.params['node_id'], postgres_handle)
+        twitter_user.set_graph_time_context(reduction.createddate)
+    else:
+        twitter_user = None
+    return {
+        'template_path': 'social_map/node_details.html',
+        'twitter_user': twitter_user,
     }

@@ -45,35 +45,40 @@ class TwitterUser(PostgresBaseModel):
             creds = TwitterCredentials.get_by_root_user_id(self.id, self.postgres_handle)
         return creds
 
-    def get_following_ids_at_certain_time(self, at_this_datetime):
-        if not at_this_datetime:
-            raise Exception('get_following_ids_at_certain_time needs a specific datetime')
-        pre_params = {
-            'postfix': at_this_datetime.strftime('%Y_%U'),
-            'user_id': '%(user_id)s',
-        }
-        qry = """
-        select *
-        from twitter_user_following_%(postfix)s
-        where twitter_user_id = %(user_id)s
-        ;
-        """ % pre_params
-        params = {
-            'user_id': self.id
-        }
-        results = self.postgres_handle.execute_query(qry, params)
-        if not results:
-            return []
+    def set_graph_time_context(self, at_this_datetime):
+        self._at_this_datetime = at_this_datetime
+
+    def get_graph_time_context(self):
+        if not '_at_this_datetime' in self.__dict__:
+            return self.last_loaded_following_ids
         else:
-            return results[0]['following_ids']
+            return self._at_this_datetime
 
     @property
     def following_ids(self):
         if not '_following_ids' in self.__dict__:
-            if not self.last_loaded_following_ids:
+            time_context = self.get_graph_time_context()
+            if not time_context:
                 self._following_ids = []
             else:
-                self._following_ids = self.get_following_ids_at_certain_time(self.last_loaded_following_ids)
+                pre_params = {
+                    'postfix': time_context.strftime('%Y_%U'),
+                    'user_id': '%(user_id)s',
+                }
+                qry = """
+                select *
+                from twitter_user_following_%(postfix)s
+                where twitter_user_id = %(user_id)s
+                ;
+                """ % pre_params
+                params = {
+                    'user_id': self.id
+                }
+                results = self.postgres_handle.execute_query(qry, params)
+                if not results:
+                    self._following_ids = []
+                else:
+                    self._following_ids = results[0]['following_ids']
         return self._following_ids
 
     @property

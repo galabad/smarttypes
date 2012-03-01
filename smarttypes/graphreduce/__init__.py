@@ -134,8 +134,8 @@ class GraphReduce(object):
         #node_degrees /= np.max(node_degrees)
 
         #params
-        iterations = 100
-        attractive_force_factor = .005
+        iterations = 20
+        attractive_force_factor = .5
         repulsive_force_factor = 1.0
         potential_force_factor = 0.0
 
@@ -175,7 +175,7 @@ class GraphReduce(object):
                     norm_x = np.linalg.norm(delta_x)
                     if norm_x > EPS:
                         attraction_f += delta_x * np.log(1 + norm_x) * attractive_force_factor
-
+                print attraction_f, node_f
                 attraction_repulsion_diff.append(np.linalg.norm(attraction_f) - np.linalg.norm(node_f))
                 node_f += attraction_f
 

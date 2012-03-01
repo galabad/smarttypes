@@ -1,0 +1,24 @@
+
+
+<div xmlns:py="http://genshi.edgewall.org/">
+    <div py:if="twitter_user">
+
+        <div>
+            <a target="_blank" href="https://twitter.com/#!/${twitter_user.screen_name}">
+                ${twitter_user.screen_name}</a>
+            <span style="font-style:italic;" py:if="twitter_user.location_name">
+                ${twitter_user.location_name}
+            </span>
+        </div>
+        <div py:if="twitter_user.description">
+            ${twitter_user.description}
+        </div>
+        <div>
+            Following: ${twitter_user.following_count}
+        </div>
+        <div>
+            Followers: ${twitter_user.followers_count}
+        </div>
+
+    </div>
+</div>
