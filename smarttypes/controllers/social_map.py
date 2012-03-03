@@ -105,13 +105,17 @@ def group_details(req, session, postgres_handle):
     }
 
 def node_details(req, session, postgres_handle):
+
+    twitter_user, in_links, out_links = None, [], []
     if 'node_id' in req.params and 'reduction_id' in req.params:
         reduction = TwitterReduction.get_by_id(req.params['reduction_id'], postgres_handle)
         twitter_user = TwitterUser.get_by_id(req.params['node_id'], postgres_handle)
-        twitter_user.set_graph_time_context(reduction.createddate)
-    else:
-        twitter_user = None
+        if twitter_user:
+            in_links, out_links = reduction.get_in_and_out_links_for_user(req.params['node_id'])
+            print in_links, out_links
     return {
         'template_path': 'social_map/node_details.html',
         'twitter_user': twitter_user,
+        'in_links':in_links,
+        'out_links':out_links,
     }

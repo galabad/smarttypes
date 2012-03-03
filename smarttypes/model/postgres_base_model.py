@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 
 class PostgresBaseModel(object):
     
+    spliter = ':::'
+
     def __init__(self, **kwargs):
         if 'postgres_handle' not in kwargs:
             raise Exception('Cant initialize a PostgresBaseModel object without a postgres_handle.')

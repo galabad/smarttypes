@@ -3,6 +3,8 @@ var global_reduction_id = -1;
 var global_num_groups = -1;
 var global_old_group_index = -1;
 var global_old_group_color = "";
+var global_old_node_id = "";
+var global_old_node_color = "";
 
 
 var load_social_map = function(reduction_id, num_groups){
@@ -12,21 +14,22 @@ var load_social_map = function(reduction_id, num_groups){
 
     reduction_href = '/social_map/map_data.json?reduction_id='+reduction_id;
 
-    var coord_scale = d3.scale.linear().domain([-2,2]).range([10,420]);
+    var coord_scale = d3.scale.linear().domain([-1,2]).range([10,420]);
     var color_scale = d3.scale.linear().domain([-1,num_groups])
         .interpolate(d3.interpolateRgb)
         .range(["#cccccc", "#000000"]);
     
     $('#map_data').html('');
     var svg = d3.select("#map_data").append("svg")
-        .attr("width", 450)
-        .attr("height", 450);
+        .attr("width", 430)
+        .attr("height", 430);
         
     d3.json(reduction_href, function(data){
         //console.log(data);
         svg.selectAll("circle")
             .data(data)
             .enter().append("circle")
+            .attr("id", function(d, i) { return "id_" + d.id; })
             .attr("class", function(d, i) { return "group_" + d.group_index; })
             .attr("cx", function(d, i) { return coord_scale(d.x); })
             .attr("cy", function(d, i) { return coord_scale(d.y); })
@@ -46,6 +49,10 @@ var load_social_map = function(reduction_id, num_groups){
         global_old_group_index = -1;
         global_old_group_color = "";
         show_cluster(0, reduction_id);
+        global_old_node_id = "";
+        global_old_node_color = "";
+        show_node("", reduction_id);
+
     });
 }
 
@@ -57,8 +64,15 @@ var show_node = function(node_id, reduction_id){
     }
     global_old_group_index = -1;
     global_old_group_color = "";
-    //d3.selectAll('circle.group_' + group_idx).style("fill", '#00FF00');
-    $('#current_group').html("blah");
+
+    if (global_old_node_id != ""){
+        d3.selectAll('#id_' + global_old_node_id).style("fill", global_old_node_color);
+    }
+    global_old_node_id = node_id;
+    global_old_node_color = d3.selectAll('#id_' + node_id).style("fill");
+    d3.selectAll('#id_' + node_id).style("fill", '#00FF00');
+    $('#current_group').html("");
+
     $.ajax({type:"POST",
             url:"/social_map/node_details",
             cache:false,
@@ -68,6 +82,7 @@ var show_node = function(node_id, reduction_id){
             success:function(html){
                 $('#group_details').html('');
                 $('#group_details').html(html);
+                bind_highlight_following_click();
             }
     });
 };
@@ -86,6 +101,13 @@ var show_cluster = function(group_idx, reduction_id){
     global_old_group_index = group_idx;
     global_old_group_color = d3.selectAll('circle.group_' + group_idx).style("fill");
     d3.selectAll('circle.group_' + group_idx).style("fill", '#00FF00');
+
+    if (global_old_node_id != ""){
+        d3.selectAll('#id_' + global_old_node_id).style("fill", global_old_node_color);
+    }
+    global_old_node_id = "";
+    global_old_node_color = "";
+
     $('#current_group').html(group_idx + 1);
     $.ajax({type:"POST",
             url:"/social_map/group_details",
@@ -128,10 +150,23 @@ var bind_next_or_prev_reduction_click = function(){
 
 var bind_root_user_selector_change = function(){
     $("select#root_user_selector").unbind().change(function(){
-          var user_id = $("select#root_user_selector option:selected").val();
-          window.location = '/social_map?user_id=' + user_id;
+        var user_id = $("select#root_user_selector option:selected").val();
+        window.location = '/social_map?user_id=' + user_id;
     });
 };
+
+var bind_highlight_following_click = function(){
+    $("a.highlight_following").unbind().click(function(){
+
+        var following = $.parseJSON($(this).attr('data-following'));
+        following.forEach(function(following_id){ 
+            d3.selectAll('#id_' + following_id).style("fill", '#FF0000');
+        });
+        return false;
+
+    });
+};
+
 
 
 

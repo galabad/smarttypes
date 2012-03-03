@@ -89,7 +89,7 @@ class GraphReduce(object):
     def reduce_with_linloglayout(self):
         input_file = open(self.linloglayout_input_file_path, 'w')
         for node_id in self.layout_ids:
-            for following_id in self.G.neighbors(node_id):
+            for following_id in self.G.successors(node_id):
                 input_file.write('%s %s \n' % (node_id, following_id))
         input_file.close()
         #to recompile
@@ -134,9 +134,9 @@ class GraphReduce(object):
         #node_degrees /= np.max(node_degrees)
 
         #params
-        iterations = 20
+        iterations = 200
         attractive_force_factor = .5
-        repulsive_force_factor = 1.0
+        repulsive_force_factor = .005
         potential_force_factor = 0.0
 
         #coordinates
@@ -144,14 +144,11 @@ class GraphReduce(object):
         if len(self.reduction):
             x = reduction_to_x()
         else:
-            x = np.random.random(3 * n) * 100
+            x = np.random.random(3 * n) * 10
         x[2::3] = 0  # make sure z is 0 for 2d
-        q = np.ones(n) * node_degrees * repulsive_force_factor  # charges
+        q = (np.ones(n) * node_degrees) + 1  # charges
         p = np.ones(n) * potential_force_factor  # potential
         f = np.zeros(3 * n)  # force
-
-        print "attractive_force_factor: %s -- repulsive_force_factor: %s -- potential_force_factor: %s\n" % (
-            attractive_force_factor, repulsive_force_factor, potential_force_factor)
 
         energy_status_msg = 0
         for i in range(iterations):
@@ -160,7 +157,7 @@ class GraphReduce(object):
                 p.ctypes.data, f.ctypes.data, 0)
 
             #attraction and move
-            attraction_repulsion_diff = []
+            attraction_repulsion_factors = []
             for j in range(n):
                 node_id = self.layout_ids[j]
                 node_f = f[3 * j: 3 * j + 2]
@@ -168,26 +165,31 @@ class GraphReduce(object):
 
                 #attraction
                 attraction_f = np.array([0.0, 0.0])
-                for following_id in self.G.neighbors(node_id):
+                for following_id in self.G.successors(node_id):
                     following_idx = self.id_to_idx_map[following_id]
                     following_x = x[3 * following_idx: 3 * following_idx + 2]
                     delta_x = following_x - node_x
-                    norm_x = np.linalg.norm(delta_x)
-                    if norm_x > EPS:
-                        attraction_f += delta_x * np.log(1 + norm_x) * attractive_force_factor
-                print attraction_f, node_f
-                attraction_repulsion_diff.append(np.linalg.norm(attraction_f) - np.linalg.norm(node_f))
+                    following_delta_x_norm = np.linalg.norm(delta_x)
+                    if following_delta_x_norm > EPS:
+                        attraction_f += delta_x * np.log(1 + following_delta_x_norm) * attractive_force_factor
+                
+                #compare attraction + repulsion forces
+                repulsion_f_norm = np.linalg.norm(node_f)
+                attraction_f_norm = np.linalg.norm(attraction_f)
+                attraction_repulsion_factor = (attraction_f_norm / repulsion_f_norm)
+                attraction_repulsion_factors.append(attraction_repulsion_factor)
+
+                #combine attraction + repulsion forces
                 node_f += attraction_f
 
                 #move
-                norm_f = np.linalg.norm(node_f)
-                energy_status_msg += norm_f
-                if norm_f < EPS:
+                node_f_norm = np.linalg.norm(node_f)
+                energy_status_msg += node_f_norm
+                if node_f_norm < EPS:
                     delta_x = 0
                 else:
-                    delta_x = node_f / np.sqrt(norm_f)
-                #print node_f, norm_f, delta_x
-                x[3 * j: 3 * j + 2] += delta_x
+                    delta_x = node_f / np.sqrt(node_f_norm)
+                x[3 * j: 3 * j + 2] += delta_x * .25
 
             #clear spent force
             f = np.zeros(3 * n)
@@ -197,11 +199,11 @@ class GraphReduce(object):
                 x_to_reduction(x)
                 self.normalize_reduction()
                 self.find_dbscan_clusters()
-                print "iteration %s of %s -- energy: %s -- groups: %s -- att-rep-diff: %s" % (
+                print "iteration %s of %s -- energy: %s -- groups: %s -- att-rep-factor: %s" % (
                     i, iterations,
                     energy_status_msg if energy_status_msg else '?',
                     self.n_clusters,
-                    np.sum(attraction_repulsion_diff))
+                    np.mean(attraction_repulsion_factors))
 
             #clear energy status msg
             energy_status_msg = 0

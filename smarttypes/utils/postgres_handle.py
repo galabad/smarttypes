@@ -4,6 +4,8 @@ psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 
 class PostgresHandle(object):
     
+    spliter = ':::'
+
     def __init__(self, connection_string):
         self.connection_string = connection_string      
         

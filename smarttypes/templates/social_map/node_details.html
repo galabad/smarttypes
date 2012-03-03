@@ -1,4 +1,4 @@
-
+<?python import simplejson ?>
 
 <div xmlns:py="http://genshi.edgewall.org/">
     <div py:if="twitter_user">
@@ -14,10 +14,12 @@
             ${twitter_user.description}
         </div>
         <div>
-            Following: ${twitter_user.following_count}
+            Following: ${len(out_links)}
+            <a py:if="out_links" class="highlight_following" href="#" 
+                data-following='${simplejson.dumps(out_links)}'>Highlight</a>
         </div>
         <div>
-            Followers: ${twitter_user.followers_count}
+            Followers: ${len(in_links)}
         </div>
 
     </div>

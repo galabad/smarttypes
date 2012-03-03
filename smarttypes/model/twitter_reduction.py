@@ -12,7 +12,9 @@ class TwitterReduction(PostgresBaseModel):
         'x_coordinates',
         'y_coordinates',
         'group_indices',
-        'group_scores'
+        'group_scores',
+        'in_links',
+        'out_links',
     ]
     table_defaults = {}
 
@@ -35,6 +37,21 @@ class TwitterReduction(PostgresBaseModel):
                     'group_index': group_index
                 })
         return details
+
+    def get_in_and_out_links_for_user(self, user_id):
+
+        in_links, out_links = [], []
+        for i in range(len(self.user_ids)):
+            iter_user_id = self.user_ids[i]
+            if iter_user_id == user_id:
+                in_links_str = self.in_links[i]
+                out_links_str = self.out_links[i]
+                if in_links_str:
+                    in_links = in_links_str.split(self.spliter)
+                if out_links_str:
+                    out_links = out_links_str.split(self.spliter)
+                return in_links, out_links
+        return [], []
 
     def save_group_info(self, postgres_handle):
         group_indices = []
@@ -115,11 +132,14 @@ class TwitterReduction(PostgresBaseModel):
         return return_users
 
     @classmethod
-    def create_reduction(cls, root_user_id, user_ids, x_coordinates, y_coordinates, postgres_handle):
+    def create_reduction(cls, root_user_id, user_ids, 
+            x_coordinates, y_coordinates, in_links, out_links, postgres_handle):
         twitter_reduction = cls(postgres_handle=postgres_handle)
         twitter_reduction.root_user_id = root_user_id
         twitter_reduction.user_ids = user_ids
         twitter_reduction.x_coordinates = x_coordinates
         twitter_reduction.y_coordinates = y_coordinates
+        twitter_reduction.in_links = in_links
+        twitter_reduction.out_links = out_links
         twitter_reduction.save()
         return twitter_reduction

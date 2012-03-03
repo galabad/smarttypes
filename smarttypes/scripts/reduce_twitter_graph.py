@@ -54,12 +54,19 @@ def reduce_graph(screen_name, distance=20, min_followers=60,
     user_ids = []
     x_coordinates = []
     y_coordinates = []
+    in_links = []
+    out_links = []
     for i in range(len(gr.layout_ids)):
-        user_ids.append(gr.layout_ids[i])
+        user_id = gr.layout_ids[i]
+        user_ids.append(user_id)
         x_coordinates.append(gr.reduction[i][0])
         y_coordinates.append(gr.reduction[i][1])
+        itr_in_links = PostgresHandle.spliter.join(gr.G.predecessors(user_id))
+        itr_out_links = PostgresHandle.spliter.join(gr.G.successors(user_id))
+        in_links.append(itr_in_links)
+        out_links.append(itr_out_links)
     twitter_reduction = TwitterReduction.create_reduction(root_user_id, user_ids,
-        x_coordinates, y_coordinates, postgres_handle)
+        x_coordinates, y_coordinates, in_links, out_links, postgres_handle)
     postgres_handle.connection.commit()
 
     ########################

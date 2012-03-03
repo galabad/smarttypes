@@ -98,7 +98,9 @@ create table twitter_reduction(
     x_coordinates real[] not null,
     y_coordinates real[] not null,
     group_indices real[],
-    group_scores real[]
+    group_scores real[],
+    in_links text[],
+    out_links text[]
 );
 CREATE TRIGGER twitter_reduction_modified BEFORE UPDATE
 ON twitter_reduction FOR EACH ROW
