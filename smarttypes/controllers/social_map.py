@@ -112,7 +112,6 @@ def node_details(req, session, postgres_handle):
         twitter_user = TwitterUser.get_by_id(req.params['node_id'], postgres_handle)
         if twitter_user:
             in_links, out_links = reduction.get_in_and_out_links_for_user(req.params['node_id'])
-            print in_links, out_links
     return {
         'template_path': 'social_map/node_details.html',
         'twitter_user': twitter_user,

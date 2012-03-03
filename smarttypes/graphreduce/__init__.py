@@ -136,7 +136,7 @@ class GraphReduce(object):
         #params
         iterations = 200
         attractive_force_factor = .5
-        repulsive_force_factor = .005
+        repulsive_force_factor = .00005
         potential_force_factor = 0.0
 
         #coordinates
@@ -153,8 +153,8 @@ class GraphReduce(object):
         energy_status_msg = 0
         for i in range(iterations):
             #repulsion
-            self.exafmm_solver.FMMcalccoulomb(n, x.ctypes.data, q.ctypes.data,
-                p.ctypes.data, f.ctypes.data, 0)
+            # self.exafmm_solver.FMMcalccoulomb(n, x.ctypes.data, q.ctypes.data,
+            #     p.ctypes.data, f.ctypes.data, 0)
 
             #attraction and move
             attraction_repulsion_factors = []
@@ -162,16 +162,21 @@ class GraphReduce(object):
                 node_id = self.layout_ids[j]
                 node_f = f[3 * j: 3 * j + 2]
                 node_x = x[3 * j: 3 * j + 2]
+                node_following = set(self.G.successors(node_id))
 
                 #attraction
                 attraction_f = np.array([0.0, 0.0])
-                for following_id in self.G.successors(node_id):
+                for following_id in node_following:
                     following_idx = self.id_to_idx_map[following_id]
                     following_x = x[3 * following_idx: 3 * following_idx + 2]
+                    following_following = set(self.G.successors(following_id))
+                    in_common = len(node_following.intersection(following_following))
+
                     delta_x = following_x - node_x
                     following_delta_x_norm = np.linalg.norm(delta_x)
                     if following_delta_x_norm > EPS:
-                        attraction_f += delta_x * np.log(1 + following_delta_x_norm) * attractive_force_factor
+                        attraction_f += delta_x * np.log(1 + following_delta_x_norm) \
+                            * attractive_force_factor * (in_common / 5.0)
                 
                 #compare attraction + repulsion forces
                 repulsion_f_norm = np.linalg.norm(node_f)
@@ -189,7 +194,7 @@ class GraphReduce(object):
                     delta_x = 0
                 else:
                     delta_x = node_f / np.sqrt(node_f_norm)
-                x[3 * j: 3 * j + 2] += delta_x * .25
+                x[3 * j: 3 * j + 2] += delta_x * .35
 
             #clear spent force
             f = np.zeros(3 * n)

@@ -5,6 +5,7 @@ var global_old_group_index = -1;
 var global_old_group_color = "";
 var global_old_node_id = "";
 var global_old_node_color = "";
+var global_old_following = [];
 
 
 var load_social_map = function(reduction_id, num_groups){
@@ -14,7 +15,7 @@ var load_social_map = function(reduction_id, num_groups){
 
     reduction_href = '/social_map/map_data.json?reduction_id='+reduction_id;
 
-    var coord_scale = d3.scale.linear().domain([-1,2]).range([10,420]);
+    var coord_scale = d3.scale.linear().domain([-3,4]).range([10,420]);
     var color_scale = d3.scale.linear().domain([-1,num_groups])
         .interpolate(d3.interpolateRgb)
         .range(["#cccccc", "#000000"]);
@@ -58,18 +59,26 @@ var load_social_map = function(reduction_id, num_groups){
 
 var show_node = function(node_id, reduction_id){
 
-    //change the old color back
+    //change old group color back
     if (global_old_group_index != -1){
         d3.selectAll('circle.group_' + global_old_group_index).style("fill", global_old_group_color);
     }
     global_old_group_index = -1;
     global_old_group_color = "";
 
+    //change following color back
+    global_old_following.forEach(function(following_id){ 
+        d3.selectAll('#id_' + following_id).style("fill", global_old_node_color);
+    });
+
+    //change old node color back
     if (global_old_node_id != ""){
         d3.selectAll('#id_' + global_old_node_id).style("fill", global_old_node_color);
     }
     global_old_node_id = node_id;
     global_old_node_color = d3.selectAll('#id_' + node_id).style("fill");
+
+    //highlight selected node
     d3.selectAll('#id_' + node_id).style("fill", '#00FF00');
     $('#current_group').html("");
 
@@ -158,8 +167,8 @@ var bind_root_user_selector_change = function(){
 var bind_highlight_following_click = function(){
     $("a.highlight_following").unbind().click(function(){
 
-        var following = $.parseJSON($(this).attr('data-following'));
-        following.forEach(function(following_id){ 
+        global_old_following = $.parseJSON($(this).attr('data-following'));
+        global_old_following.forEach(function(following_id){ 
             d3.selectAll('#id_' + following_id).style("fill", '#FF0000');
         });
         return false;

@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    lang="en">
+
+<meta name="description" content="" />
+    
+<xi:include href="../master.html" />      
+<head>
+
+</head>                    
+
+<body>
+<div style="text-align:left;">
+
+<h1>
+A social physics engine
+</h1>
+
+<p>
+The following is related to graph embedding or graph layouts.
+At a high level it's reducing a graph to 2 or 3 dimensions.
+I won't get into why this is useful. 
+It's enough to say that graphs are convenient abstractions that can be used to model complex problems.
+Assuming the inherit value of graphs.  
+Reducing the dimensionality of a graph (learning it's essence) is also valuable.
+There a lot of methods of dimension reduction.
+The one i will describe here is the coolest (most natural) method i've found.
+</p>
+
+<p>
+Let's assume we're interested in a 2d graph layout.
+Stay w/ me for a second, i'll go over this quickly and then go back in more detail.
+We're going to randomly scatter all the nodes in our graph on a 2d surface.
+Our nodes will then interact w/ all the other nodes on this 2d surface until they settle down to a some kind of equilibrium.
+This is know generally as <a href="http://en.wikipedia.org/wiki/Energy_minimization">http://en.wikipedia.org/wiki/Energy_minimization</a>
+and is commonly used for modeling/simulating physical systems.
+Fans of complexity and social science will see a lot of similarities w/ this and Agent Based Modeling. 
+</p>
+
+<p>
+Lets talk for a minute about our goal.
+I'm interested in finding communities of people.
+Once we're able to identity niche communities, we should be able to easily id trends and influence within these communities.
+This has obvious social and market research implications.
+Imagine being able to id the best group of people for any topic or interest.
+Photographers in Cleveland, or the best complexity theorists in whole world.
+This is possible w/ online social networks. 
+</p>
+
+<p>
+Luckily Dr. Andreas Noack has done all the hard work. 
+Noack’s LinLog energy model is considered the best force model to preserve the community structure of a graph.
+The following is from his 2007 paper
+<a href="http://www-sst.informatik.tu-cottbus.de/~an/Publications/JGAA2007.pdf">Energy Models for Graph Clustering</a>.
+</p>
+
+<blockquote>
+edge-repulsion LinLog energy minimize the ratio of the mean distance 
+between connected end nodes to the mean distance between all end nodes.
+</blockquote>
+
+<p>
+Put simply Noack's method minimizes the average distance between connected nodes while maximizing the distance between all other nodes.
+He proves this is possible w/ to simple rules: linear repulsion and logarithmic attraction. 
+</p>
+
+<p>
+I gotta go, more to come!
+</p>
+
+</div>
+</body>                                    
+</html>
+
