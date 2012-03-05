@@ -6,7 +6,9 @@
     xmlns:xi="http://www.w3.org/2001/XInclude"
     lang="en">
 
-<meta name="description" content="" />
+<meta name="description" content="At a high level, the following is about reducing the dimensionality of a graph. 
+Explaining the value in graph reduction is a task left for another day. 
+For now let's just say that graphs are convenient abstractions that can be used to represent complex problems." />
     
 <xi:include href="../master.html" />      
 <head>
@@ -23,8 +25,8 @@ Graph reduction via linlog n-body simulation
 <p>
 At a high level, the following is about reducing the dimensionality of a graph. 
 Explaining the value in graph reduction is a task left for another day. 
-For now i'll simply say, graphs are convenient abstractions that can be used to represent complex problems. 
-If you're curious about how/where graphs are used check out <a href="http://networkscience.wordpress.com/2011/11/21/why-everything-is-a-network/">this from a recent network science postdoc</a>. 
+For now let's just say that graphs are convenient abstractions that can be used to represent complex problems. 
+If you're curious why graphs are such great abstractions check out this from <a href="http://networkscience.wordpress.com/2011/11/21/why-everything-is-a-network/">A Recent Network Science Postdoc</a>. 
 </p>
 
 <p>
@@ -32,7 +34,7 @@ Assuming then, the inherit value in graphs.
 Reducing the dimensionality of a graph (squeezing out it's essence) is also valuable. 
 There are a lot of methods of dimension reduction. 
 There are a lot of methods of graph analysis. 
-The method/model described here uses <a href="http://en.wikipedia.org/wiki/N-body">N-body simulation</a> to reduce a graph to 2 dimensions.
+The method/model described here uses <a href="http://en.wikipedia.org/wiki/N-body">N-body Simulation</a> to reduce a graph to 2 dimensions.
 Reducing the dimensionality of our graph this much has the nice effect of making it human digestible. 
 </p>
 
@@ -40,15 +42,23 @@ Reducing the dimensionality of our graph this much has the nice effect of making
 We're interested in a 2d graph layout. 
 Stay w/ me for a second. 
 We're going to scatter all the nodes in our graph on a 2d surface. 
-Our nodes interact w/ each other until they settle down to some kind of equilibrium. 
+Our nodes interact w/ each other until they settle down to an equilibrium. 
 This is know generally as <a href="http://en.wikipedia.org/wiki/Energy_minimization">Energy Minimization</a>, and is commonly used to model complex physical systems. 
-Fans of complexity and social science will see a lot of similarities w/ this and Agent Based Modeling. 
+Fans of complexity and social science will see a lot of similarities between this and 
+<a href="http://en.wikipedia.org/wiki/Agent-based_model">Agent Based Modeling</a>.
 </p>
 
 <p>
-Lets talk for a minute about our goal. 
+Lets talk for a minute about our specific goal. 
 I'm interested in understanding the community structure of a graph.
+The following is from the 103 page tour de force <a href="http://arxiv.org/abs/0906.0612">Community Detection in Graphs</a>.
 </p>
+
+<blockquote>
+The modern science of networks has brought significant advances to our understanding of complex systems. One of the most relevant features of graphs representing real systems is community structure, or clustering, i. e. the organization of vertices in clusters, with many edges joining vertices of the same cluster and comparatively few edges joining vertices of different clusters.
+
+Such clusters, or communities, can be considered as fairly independent compartments of a graph, playing a similar role like, e.g., the tissues or the organs in the human body. Detecting communities is of great importance in sociology, biology and computer science, disciplines where systems are often represented as graphs. This problem is very hard and not yet satisfactorily solved, despite the huge effort of a large interdisciplinary community of scientists working on it over the past few years.
+</blockquote>
 
 <p>
 Luckily Dr. Andreas Noack has done all the hard work. 
