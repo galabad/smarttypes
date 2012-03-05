@@ -11,8 +11,24 @@ pip install virtualenv
 4. Install virtualenv wrapper:
 http://pypi.python.org/pypi/virtualenvwrapper#downloads
 
+#  1. Create a directory to hold the virtual environments.
+#     (mkdir $HOME/.virtualenvs).
+#  2. Add a line like "export WORKON_HOME=$HOME/.virtualenvs"
+#     to your .bashrc.
+#  3. Add a line like "source /path/to/this/file/virtualenvwrapper.sh"
+#     to your .bashrc.
+#  4. Run: source ~/.bashrc
+#  5. Run: workon
+#  6. A list of environments, empty, is printed.
+#  7. Run: mkvirtualenv temp
+#  8. Run: workon
+#  9. This time, the "temp" environment is included.
+# 10. Run: workon temp
+# 11. The virtual environment is activated.
 
-http://help.github.com/fork-a-repo/
+5. Follow the instructions in README.txt
+
+6. Add features and find bugs in smarttypes and request the changes be added:
 http://help.github.com/fork-a-repo/
 http://help.github.com/send-pull-requests/
 
@@ -22,4 +38,6 @@ http://help.github.com/send-pull-requests/
 
 
 
+
+ifc:/home/joeo/smarttypes/virtualenvwrapper-3.0.1# python distribute_setup.py
 
