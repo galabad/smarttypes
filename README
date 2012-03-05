@@ -11,7 +11,7 @@ Data is stored in postgres, and partitioned by year_week.  The db schema is buil
 
 Enough of the boring stuff, our purpose is to explore, highlight, and improve social analysis algos and visualizations.
 
-Please see http://www.smarttypes.org/blog/modeling_complexity_w_python for info on our first algorithm.
+Please see http://www.smarttypes.org/blog/graph_reduction_linlog_nbody_simulation for info on our first algorithm.
 
 
 ***********************************************************
